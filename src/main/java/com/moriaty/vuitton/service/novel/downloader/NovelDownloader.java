@@ -16,8 +16,19 @@ import java.util.List;
  */
 public interface NovelDownloader {
 
+    /**
+     * 获取信息
+     *
+     * @return NovelDownloaderInfo
+     */
     NovelDownloaderInfo getInfo();
 
+    /**
+     * 查询小说
+     *
+     * @param queryName String
+     * @return QueryNovelInfo
+     */
     QueryNovelInfo queryNovel(String queryName);
 
     List<NovelChapter> findChapterList(String catalogueAppend);

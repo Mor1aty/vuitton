@@ -12,6 +12,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.net.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -58,20 +60,11 @@ public class AfterStartup implements CommandLineRunner {
 
     private String findInternalIpAddress() {
         try {
-            Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
-            while (enumeration.hasMoreElements()) {
-                NetworkInterface networkInterface = enumeration.nextElement();
-                if (!networkInterface.getName().startsWith("wireless_")) {
-                    continue;
-                }
-                List<InterfaceAddress> addressList = networkInterface.getInterfaceAddresses();
-                if (!addressList.isEmpty()) {
-                    for (InterfaceAddress address : addressList) {
-                        String ipAddress = address.getAddress().getHostAddress();
-                        if (ipAddress.contains("192.168.")) {
-                            return ipAddress;
-                        }
-                    }
+            NetworkInterface networkInterface = NetworkInterface.getByName("wlp2s0");
+            for (InterfaceAddress address : networkInterface.getInterfaceAddresses()) {
+                String ipAddress = address.getAddress().getHostAddress();
+                if (ipAddress.contains("192.168")) {
+                    return ipAddress;
                 }
             }
         } catch (SocketException e) {
@@ -107,7 +100,7 @@ public class AfterStartup implements CommandLineRunner {
         if (novelDownloaderBeanMap.isEmpty()) {
             log.info("无可用小说下载器");
         } else {
-            Map<String, NovelDownloader> novelDownloaderMap = new HashMap<>();
+            Map<String, NovelDownloader> novelDownloaderMap = new HashMap<>(novelDownloaderBeanMap.size());
             StringBuilder sb = new StringBuilder();
             for (NovelDownloader novelDownloaderBean : novelDownloaderBeanMap.values()) {
                 novelDownloaderMap.put(novelDownloaderBean.getInfo().getMark(), novelDownloaderBean);

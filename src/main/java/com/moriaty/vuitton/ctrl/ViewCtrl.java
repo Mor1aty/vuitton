@@ -1,5 +1,6 @@
 package com.moriaty.vuitton.ctrl;
 
+import com.moriaty.vuitton.ServerInfo;
 import com.moriaty.vuitton.bean.video.FindVideoReq;
 import com.moriaty.vuitton.bean.video.VideoAroundEpisode;
 import com.moriaty.vuitton.core.wrap.WrapMapper;
@@ -52,15 +53,12 @@ public class ViewCtrl {
         Wrapper<List<Video>> videoWrapper = videoService.findVideo(new FindVideoReq());
         model.addAttribute("videoList",
                 WrapMapper.isOk(videoWrapper) ? videoWrapper.data() : Collections.emptyList());
+        model.addAttribute("fileServerUrl", ServerInfo.BASE_INFO.getFileServerUrl());
         return "video";
     }
 
     @RequestMapping("/video_info")
-    public String videoInfo(Model model, @RequestParam("videoId") String videoIdStr) {
-        if (!videoIdStr.matches("^\\d*[1-9]\\d*$")) {
-            return goError(model, "视频 id 出问题啦", "videoId=" + videoIdStr);
-        }
-        int videoId = Integer.parseInt(videoIdStr);
+    public String videoInfo(Model model, @RequestParam("videoId") String videoId) {
         Wrapper<List<Video>> videoWrapper = videoService.findVideo(new FindVideoReq().setId(videoId));
         if (!WrapMapper.isOk(videoWrapper) || videoWrapper.data().size() != 1) {
             return goError(model, "视频信息出问题啦", "videoWrapper=" + videoWrapper);
@@ -72,25 +70,26 @@ public class ViewCtrl {
         }
         model.addAttribute("videoInfo", videoWrapper.data().get(0));
         model.addAttribute("episodeList", episodeMapper.data());
+        model.addAttribute("fileServerUrl", ServerInfo.BASE_INFO.getFileServerUrl());
         return "video_info";
     }
 
     @RequestMapping("/video_play")
-    public String videoPlay(Model model, @RequestParam("videoId") String videoIdStr,
+    public String videoPlay(Model model, @RequestParam("videoId") String videoId,
                             @RequestParam("episodeId") String episodeIdStr) {
-        if (!videoIdStr.matches("^\\d*[1-9]\\d*$") || !episodeIdStr.matches("^\\d*[1-9]\\d*$")) {
-            return goError(model, "视频参数出问题啦", "videoId=" + videoIdStr
+        if (!episodeIdStr.matches("^\\d*[1-9]\\d*$")) {
+            return goError(model, "视频参数出问题啦", "videoId=" + videoId
                     + " episodeId=" + episodeIdStr);
         }
-        int videoId = Integer.parseInt(videoIdStr);
         int episodeId = Integer.parseInt(episodeIdStr);
         Wrapper<VideoAroundEpisode> aroundEpisodeWrapper = videoService.findVideoAroundEpisode(videoId, episodeId);
         if (!WrapMapper.isOk(aroundEpisodeWrapper)) {
-            return goError(model, "视频播放出问题啦", "videoId=" + videoIdStr
+            return goError(model, "视频播放出问题啦", "videoId=" + videoId
                     + " episodeId=" + episodeIdStr + " aroundEpisodeWrapper=" + aroundEpisodeWrapper);
         }
         log.info("{}", aroundEpisodeWrapper.data());
         model.addAttribute("aroundEpisode", aroundEpisodeWrapper.data());
+        model.addAttribute("fileServerUrl", ServerInfo.BASE_INFO.getFileServerUrl());
         return "video_play";
     }
 

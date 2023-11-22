@@ -67,14 +67,14 @@
 			<artifactId>sqlite-jdbc</artifactId>
 			<version>3.44.0.0</version>
 		</dependency>
-		<!-- mybatis plus end -->
-		<!--sqlite begin-->
+		<!-- sqlite end -->
+		<!--mybatis plus begin-->
 		<dependency>
 			<groupId>com.baomidou</groupId>
 			<artifactId>mybatis-plus-boot-starter</artifactId>
 			<version>3.5.4.1</version>
 		</dependency>
-		<!-- sqlite end -->
+		<!-- mybatis plus end -->
 	</dependencies>
 
 	<build>

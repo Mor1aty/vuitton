@@ -17,7 +17,8 @@
         <li
           class="aui-list-item"
           th:each="video: ${videoList}"
-          th:onclick="|goVideoInfo(${video.id})|"
+          th:data="${video.id}"
+          th:onclick="|goVideoInfo(this.getAttribute('data'))|"
         >
           <div class="aui-media-list-item-inner">
             <div class="aui-list-item-inner">
@@ -28,7 +29,7 @@
               <p class="aui-ellipsis-2" th:text="${video.description}"></p>
             </div>
             <div class="aui-list-item-media" style="width: 3rem">
-              <img th:src="${video.coverImg}" alt="无图片" src="" />
+              <img th:src="${fileServerUrl}+${video.coverImg}" alt="无图片" src="" />
             </div>
           </div>
         </li>

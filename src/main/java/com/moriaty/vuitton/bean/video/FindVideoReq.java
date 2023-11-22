@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class FindVideoReq {
 
-    private Integer id;
+    private String id;
 
     private String name;
 

@@ -4,18 +4,25 @@ spring:
   output:
     ansi:
       enabled: always
-  resources:
-    static-locations: classpath:/static/
   datasource:
     driver-class-name: org.sqlite.JDBC
-    url: jdbc:sqlite:E:\workspace\IDEA\vuitton\vuitton.db
+    url: jdbc:sqlite:/home/moriaty/work/workspace/IDEA/vuitton/vuitton.db
   mvc:
     static-path-pattern: /static/**
+  web:
+    resources:
+      static-locations: classpath:/static/
 logging:
   level:
     com.moriaty.vuitton.dao.mapper: DEBUG
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
 
 novel:
   location: classpath:/static/novel
 video:
   file-server-url: http://%s:8081
+  base-path: /data/video
+  base-prefix: /video/

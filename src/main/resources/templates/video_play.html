@@ -28,7 +28,7 @@
             height="auto"
           >
             <source
-              th:src="${aroundEpisode.episode.episodeUrl}"
+              th:src="${fileServerUrl}+${aroundEpisode.episode.episodeUrl}"
               type="video/mp4"
             />
           </video>
@@ -38,7 +38,8 @@
             <div
               class="aui-list-item-title aui-text-primary"
               th:if="${aroundEpisode.preEpisode} != null"
-              th:onclick="|goAnotherVideoPlay(${aroundEpisode.preEpisode.video},${aroundEpisode.preEpisode.episodeIndex})|"
+              th:data="${aroundEpisode.preEpisode.video}"
+              th:onclick="|goAnotherVideoPlay(this.getAttribute('data'),${aroundEpisode.preEpisode.episodeIndex})|"
             >
               上一集
             </div>
@@ -47,7 +48,8 @@
             <div
               class="aui-list-item-title aui-text-primary"
               th:if="${aroundEpisode.nextEpisode} != null"
-              th:onclick="|goAnotherVideoPlay(${aroundEpisode.nextEpisode.video},${aroundEpisode.nextEpisode.episodeIndex})|"
+              th:data="${aroundEpisode.nextEpisode.video}"
+              th:onclick="|goAnotherVideoPlay(this.getAttribute('data'),${aroundEpisode.nextEpisode.episodeIndex})|"
             >
               下一集
             </div>

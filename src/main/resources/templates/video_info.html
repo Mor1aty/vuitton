@@ -39,7 +39,7 @@
           <div class="aui-info">
             <div class="aui-info-item">
               <img
-                th:src="${videoInfo.coverImg}"
+                th:src="${fileServerUrl}+${videoInfo.coverImg}"
                 alt="无图片"
                 src=""
                 style="width: 2.5rem"
@@ -63,7 +63,8 @@
               <div class="aui-timeline-item-inner">
                 <h2
                   th:text="${episode.episodeName}"
-                  th:onclick="|goVideoPlay(${videoInfo.id},${episode.episodeIndex})|"
+                  th:data="${videoInfo.id}"
+                  th:onclick="|goVideoPlay(this.getAttribute('data'),${episode.episodeIndex})|"
                 ></h2>
               </div>
             </div>
