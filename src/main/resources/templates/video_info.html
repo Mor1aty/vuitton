@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vuitton</title>
+    <meta
+      name="viewport"
+      content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="stylesheet" type="text/css" href="static/aui/aui.css" />
+
+    <style>
+      .cover {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+
+      .cover-image {
+        display: block;
+        max-width: 90%;
+        max-height: 90%;
+        margin: auto;
+        margin-top: 5%;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="aui-bar aui-bar-nav">Vuitton 视频</header>
+    <section class="aui-content" style="margin: 0.5rem">
+      <div class="aui-card-list">
+        <div class="aui-card-list-header">
+          <div class="aui-info">
+            <div class="aui-info-item">
+              <img
+                th:src="${videoInfo.coverImg}"
+                alt="无图片"
+                src=""
+                style="width: 2.5rem"
+                onclick="showCoverImg(this)"
+              />
+              <h1 th:text="${videoInfo.name}" style="margin-left: 0.5rem"></h1>
+            </div>
+          </div>
+        </div>
+        <div class="aui-card-list-content">
+          <div>
+            <p th:text="${videoInfo.description}" style="text-indent: 2em"></p>
+          </div>
+          <div class="aui-timeline">
+            <div class="aui-timeline-item-header">剧集</div>
+            <div class="aui-timeline-item" th:each="episode : ${episodeList}">
+              <div
+                class="aui-timeline-item-label aui-bg-info aui-text-white"
+                th:text="'第'+${episode.episodeIndex}+'集'"
+              ></div>
+              <div class="aui-timeline-item-inner">
+                <h2
+                  th:text="${episode.episodeName}"
+                  th:onclick="|goVideoPlay(${videoInfo.id},${episode.episodeIndex})|"
+                ></h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div id="cover" class="cover" onclick="hideCoverImg()">
+      <img id="cover-image" class="cover-image" />
+    </div>
+  </body>
+  <script type="text/javascript">
+    function goVideoPlay(videoId, episodeId) {
+      window.location.href =
+        "video_play?videoId=" + videoId + "&episodeId=" + episodeId;
+    }
+    function showCoverImg(image) {
+      var cover = document.getElementById("cover");
+      var coverImage = document.getElementById("cover-image");
+      cover.style.display = "block";
+      coverImage.src = image.src;
+    }
+
+    function hideCoverImg() {
+      var cover = document.getElementById("cover");
+      cover.style.display = "none";
+    }
+  </script>
+</html>

@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: vuitton
+  output:
+    ansi:
+      enabled: always
+  resources:
+    static-locations: classpath:/static/
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:E:\workspace\IDEA\vuitton\vuitton.db
+  mvc:
+    static-path-pattern: /static/**
+logging:
+  level:
+    com.moriaty.vuitton.dao.mapper: DEBUG
+
+novel:
+  location: classpath:/static/novel
+video:
+  file-server-url: http://%s:8081
