@@ -1,67 +1,72 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8"/>
     <title>Vuitton</title>
     <meta
-      name="viewport"
-      content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+            name="viewport"
+            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
     />
-    <meta name="format-detection" content="telephone=no" />
-    <link rel="stylesheet" type="text/css" href="static/aui/aui.css" />
-  </head>
-  <body>
-    <header class="aui-bar aui-bar-nav">Vuitton 视频</header>
-    <section class="aui-content" style="margin: 0.5rem">
-      <div class="aui-card-list">
+    <meta name="format-detection" content="telephone=no"/>
+    <link rel="stylesheet" type="text/css" href="static/aui/aui.css"/>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav"><a class="aui-pull-left aui-btn"
+                                       th:href="'/video_info?videoId='+${aroundEpisode.episode.video}">
+    <span class="aui-iconfont aui-icon-left"></span>返回
+</a>
+    <div class="aui-title">Vuitton 视频</div>
+</header>
+<section class="aui-content" style="margin: 0.5rem">
+    <div class="aui-card-list">
         <div
-          class="aui-card-list-header"
-          th:text="'第'+${aroundEpisode.episode.episodeIndex}+'集 '+${aroundEpisode.episode.episodeName}"
+                class="aui-card-list-header"
+                th:text="'第'+${aroundEpisode.episode.episodeIndex}+'集 '+${aroundEpisode.episode.episodeName}"
         ></div>
         <div class="aui-card-list-content">
-          <video
-            id="video"
-            controls
-            autoplay
-            autopictureinpicture
-            width="100%"
-            height="auto"
-          >
-            <source
-              th:src="${fileServerUrl}+${aroundEpisode.episode.episodeUrl}"
-              type="video/mp4"
-            />
-          </video>
+            <video
+                    id="video"
+                    controls
+                    autoplay
+                    autopictureinpicture
+                    width="100%"
+                    height="auto"
+            >
+                <source
+                        th:src="${fileServerUrl}+${aroundEpisode.episode.episodeUrl}"
+                        type="video/mp4"
+                />
+            </video>
         </div>
         <div class="aui-card-list-footer">
-          <div>
-            <div
-              class="aui-list-item-title aui-text-primary"
-              th:if="${aroundEpisode.preEpisode} != null"
-              th:data="${aroundEpisode.preEpisode.video}"
-              th:onclick="|goAnotherVideoPlay(this.getAttribute('data'),${aroundEpisode.preEpisode.episodeIndex})|"
-            >
-              上一集
+            <div>
+                <div
+                        class="aui-list-item-title aui-text-primary"
+                        th:if="${aroundEpisode.preEpisode} != null"
+                        th:data="${aroundEpisode.preEpisode.video}"
+                        th:onclick="|goAnotherVideoPlay(this.getAttribute('data'),${aroundEpisode.preEpisode.episodeIndex})|"
+                >
+                    上一集
+                </div>
             </div>
-          </div>
-          <div>
-            <div
-              class="aui-list-item-title aui-text-primary"
-              th:if="${aroundEpisode.nextEpisode} != null"
-              th:data="${aroundEpisode.nextEpisode.video}"
-              th:onclick="|goAnotherVideoPlay(this.getAttribute('data'),${aroundEpisode.nextEpisode.episodeIndex})|"
-            >
-              下一集
+            <div>
+                <div
+                        class="aui-list-item-title aui-text-primary"
+                        th:if="${aroundEpisode.nextEpisode} != null"
+                        th:data="${aroundEpisode.nextEpisode.video}"
+                        th:onclick="|goAnotherVideoPlay(this.getAttribute('data'),${aroundEpisode.nextEpisode.episodeIndex})|"
+                >
+                    下一集
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </section>
-  </body>
-  <script type="text/javascript">
-    function goAnotherVideoPlay(videoId, episodeId) {
-      window.location.href =
-        "video_play?videoId=" + videoId + "&episodeId=" + episodeId;
+    </div>
+</section>
+</body>
+<script type="text/javascript">
+    function goAnotherVideoPlay(videoId, episodeIndex) {
+        window.location.href =
+            "video_play?videoId=" + videoId + "&episodeIndex=" + episodeIndex;
     }
-  </script>
+</script>
 </html>

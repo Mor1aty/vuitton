@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuitton</title>
+    <meta
+            name="viewport"
+            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <link rel="stylesheet" type="text/css" href="static/aui/aui.css"/>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav">
+    <a class="aui-pull-left aui-btn" th:href="${searchText} == null?'/video':'/video?searchText='+${searchText}">
+        <span class="aui-iconfont aui-icon-left"></span>
+        返回
+    </a>
+    <div class="aui-title">Vuitton 视频观看历史</div>
+</header>
+<section class="aui-content" style="margin: 0.5rem">
+    <ul class="aui-list aui-media-list">
+        <li
+                class="aui-list-item"
+                th:each="viewHistory: ${viewHistoryList}"
+                th:data="${viewHistory.videoId}"
+                th:onclick="|goVideoPlay(this.getAttribute('data'),${viewHistory.episodeIndex})|"
+        >
+            <div class="aui-media-list-item-inner">
+                <div class="aui-list-item-inner">
+                    <div
+                            class="aui-list-item-title aui-font-size-18"
+                            th:text="'第'+${viewHistory.episodeIndex}+'集 '+${viewHistory.episodeName}"
+                    ></div>
+                    <p class="aui-ellipsis-2"
+                       th:text="${viewHistory.videoName}"></p>
+                    <p class="aui-ellipsis-2"
+                       th:text="${viewHistory.viewTime}"></p>
+                </div>
+                <div class="aui-list-item-media" style="width: 3rem">
+                    <img th:src="${fileServerUrl}+${viewHistory.videoCoverImg}" alt="无图片" src=""/>
+                </div>
+            </div>
+        </li>
+    </ul>
+</section>
+</body>
+<script type="text/javascript">
+    function goVideoPlay(videoId, episodeIndex) {
+        window.location.href =
+            "video_play?videoId=" + videoId + "&episodeIndex=" + episodeIndex;
+    }
+</script>
+</html>

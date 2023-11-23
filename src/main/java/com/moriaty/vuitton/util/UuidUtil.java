@@ -1,7 +1,8 @@
 package com.moriaty.vuitton.util;
 
+import com.moriaty.vuitton.constant.Constant;
+
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 /**
@@ -23,6 +24,6 @@ public class UuidUtil {
     }
 
     public static String genId() {
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS")) + genUuid4();
+        return LocalDateTime.now().format(Constant.Date.FORMAT_ID) + genUuid4();
     }
 }
