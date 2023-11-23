@@ -95,10 +95,11 @@ public class QuanMingNovelDownloader implements NovelDownloader {
 
     @Override
     public String handleContent(String content) {
+        String space = "\s\s\s\s";
         return content
                 .replace("请收藏本站：https://www.1q1m.com。全民小说网手机版：https://m.1q1m.com 『点此报错』『加入书签』",
                         "")
-                .replace(" 　　", "\n");
+                .replace(space, "\n");
 
     }
 }

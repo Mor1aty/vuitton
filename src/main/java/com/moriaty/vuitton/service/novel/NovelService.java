@@ -73,8 +73,8 @@ public class NovelService {
 
         try {
             // 使用虚拟线程下载
-            Map<Integer, NovelContent> novelMap = new HashMap<>();
-            Map<Integer, NovelContent> errorNovelChapter = new HashMap<>();
+            Map<Integer, NovelContent> novelMap = HashMap.newHashMap(chapterList.size());
+            Map<Integer, NovelContent> errorNovelChapter = HashMap.newHashMap(0);
             ThreadFactory factory = Thread.ofVirtual().name("novel-downloader", 0).factory();
             CountDownLatch countDownLatch = new CountDownLatch(chapterList.size());
             log.info("共 {} 章, 开启虚拟线程: {}", countDownLatch.getCount(), countDownLatch.getCount());

@@ -3,6 +3,7 @@ package com.moriaty.vuitton.ctrl;
 import com.moriaty.vuitton.ServerInfo;
 import com.moriaty.vuitton.bean.video.FindVideoReq;
 import com.moriaty.vuitton.bean.video.VideoAroundEpisode;
+import com.moriaty.vuitton.constant.Constant;
 import com.moriaty.vuitton.core.wrap.WrapMapper;
 import com.moriaty.vuitton.core.wrap.Wrapper;
 import com.moriaty.vuitton.dao.entity.Video;
@@ -77,7 +78,7 @@ public class ViewCtrl {
     @RequestMapping("/video_play")
     public String videoPlay(Model model, @RequestParam("videoId") String videoId,
                             @RequestParam("episodeId") String episodeIdStr) {
-        if (!episodeIdStr.matches("^\\d*[1-9]\\d*$")) {
+        if (!episodeIdStr.matches(Constant.Regex.POSITIVE_INTEGER)) {
             return goError(model, "视频参数出问题啦", "videoId=" + videoId
                     + " episodeId=" + episodeIdStr);
         }

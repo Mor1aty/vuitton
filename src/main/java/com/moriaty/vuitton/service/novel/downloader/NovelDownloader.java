@@ -31,10 +31,29 @@ public interface NovelDownloader {
      */
     QueryNovelInfo queryNovel(String queryName);
 
+    /**
+     * 查找目录
+     *
+     * @param catalogueAppend String
+     * @return List with NovelChapter
+     */
     List<NovelChapter> findChapterList(String catalogueAppend);
 
+    /**
+     * 查找正文
+     *
+     * @param chapterName   String
+     * @param contentAppend String
+     * @return NovelContent
+     */
     NovelContent findContent(String chapterName, String contentAppend);
 
+    /**
+     * 处理正文
+     *
+     * @param content String
+     * @return String
+     */
     String handleContent(String content);
 
 }

@@ -12,8 +12,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.net.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -100,7 +98,7 @@ public class AfterStartup implements CommandLineRunner {
         if (novelDownloaderBeanMap.isEmpty()) {
             log.info("无可用小说下载器");
         } else {
-            Map<String, NovelDownloader> novelDownloaderMap = new HashMap<>(novelDownloaderBeanMap.size());
+            Map<String, NovelDownloader> novelDownloaderMap = HashMap.newHashMap(novelDownloaderBeanMap.size());
             StringBuilder sb = new StringBuilder();
             for (NovelDownloader novelDownloaderBean : novelDownloaderBeanMap.values()) {
                 novelDownloaderMap.put(novelDownloaderBean.getInfo().getMark(), novelDownloaderBean);
