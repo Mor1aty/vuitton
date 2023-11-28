@@ -1,8 +1,8 @@
 package com.moriaty.vuitton.service.novel.downloader;
 
-import com.moriaty.vuitton.bean.novel.NovelChapter;
-import com.moriaty.vuitton.bean.novel.NovelContent;
-import com.moriaty.vuitton.bean.novel.QueryNovelInfo;
+import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
+import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
+import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -38,18 +38,18 @@ public class BiQuGeNovelDownloader implements NovelDownloader {
     }
 
     @Override
-    public QueryNovelInfo queryNovel(String queryName) {
-        return new QueryNovelInfo()
+    public QueryNetworkNovelInfo queryNovel(String searchText) {
+        return new QueryNetworkNovelInfo()
                 .setSourceName("笔趣阁")
                 .setSourceWebsite(getInfo().getWebsite())
                 .setSourceMark(getInfo().getMark())
-                .setWebSearch(getInfo().getWebsite() + "/modules/article/search.php?searchkey=" + queryName);
+                .setWebSearch(getInfo().getWebsite() + "/modules/article/search.php?searchkey=" + searchText);
     }
 
     @Override
-    public List<NovelChapter> findChapterList(String catalogueAppend) {
+    public List<NetworkNovelChapter> findChapterList(String catalogueAppend) {
         try {
-            List<NovelChapter> chapterList = new ArrayList<>();
+            List<NetworkNovelChapter> chapterList = new ArrayList<>();
             Document doc = Jsoup.connect(getInfo().getCatalogueBaseUrl() + catalogueAppend).timeout(5000).get();
             Element list = doc.getElementsByClass("article_texttitleb").get(0);
             Elements liList = list.getElementsByTag("li");
@@ -57,7 +57,7 @@ public class BiQuGeNovelDownloader implements NovelDownloader {
                 Element li = liList.get(i);
                 Element a = li.getElementsByTag("a").get(0);
                 String href = a.attr("href");
-                chapterList.add(new NovelChapter()
+                chapterList.add(new NetworkNovelChapter()
                         .setIndex(i)
                         .setName(a.text())
                         .setUrl(href));
@@ -70,7 +70,7 @@ public class BiQuGeNovelDownloader implements NovelDownloader {
     }
 
     @Override
-    public NovelContent findContent(String chapterName, String contentAppend) {
+    public NetworkNovelContent findContent(String chapterName, String contentAppend) {
         return null;
     }
 

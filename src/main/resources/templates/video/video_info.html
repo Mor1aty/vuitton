@@ -8,7 +8,7 @@
             content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
     />
     <meta name="format-detection" content="telephone=no"/>
-    <link rel="stylesheet" type="text/css" href="static/aui/aui.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/aui/aui.css"/>
 
     <style>
         .cover {
@@ -37,6 +37,10 @@
         <span class="aui-iconfont aui-icon-left"></span>返回
     </a>
     <div class="aui-title">Vuitton 视频</div>
+    <a class="aui-pull-right aui-btn aui-btn-outlined">
+        <span class="aui-iconfont aui-icon-date"
+              onclick="goVideoViewHistory()"></span>
+    </a>
 </header>
 <section class="aui-content" style="margin: 0.5rem">
     <div class="aui-card-list">
@@ -60,7 +64,7 @@
             </div>
             <div class="aui-timeline">
                 <div class="aui-timeline-item-header">剧集</div>
-                <div class="aui-timeline-item" th:if="${viewHistory} != null">
+                <div class="aui-timeline-item" th:if="${viewHistory != null}">
                     <div class="aui-timeline-item-label aui-bg-danger aui-text-white">继续观看
                     </div>
                     <div class="aui-timeline-item-inner">
@@ -92,22 +96,23 @@
     <img id="cover-image" class="cover-image"/>
 </div>
 </body>
-<script type="text/javascript">
+<script th:inline="javascript">
     function goVideoPlay(videoId, episodeIndex) {
         window.location.href =
             "video_play?videoId=" + videoId + "&episodeIndex=" + episodeIndex;
     }
 
+    function goVideoViewHistory() {
+        window.location.href = "video_view_history?videoId=" + [[${videoInfo.id}]]
+    }
+
     function showCoverImg(image) {
-        var cover = document.getElementById("cover");
-        var coverImage = document.getElementById("cover-image");
-        cover.style.display = "block";
-        coverImage.src = image.src;
+        document.getElementById("cover").style.display = "block";
+        document.getElementById("cover-image").src = image.src;
     }
 
     function hideCoverImg() {
-        var cover = document.getElementById("cover");
-        cover.style.display = "none";
+        document.getElementById("cover").style.display = "none";
     }
 </script>
 </html>

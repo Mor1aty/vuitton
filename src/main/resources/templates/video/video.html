@@ -8,7 +8,7 @@
             content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
     />
     <meta name="format-detection" content="telephone=no"/>
-    <link rel="stylesheet" type="text/css" href="static/aui/aui.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/aui/aui.css"/>
 </head>
 <body>
 <header class="aui-bar aui-bar-nav">
@@ -16,6 +16,10 @@
         <span class="aui-iconfont aui-icon-left"></span>首页
     </a>
     <div class="aui-title">Vuitton 视频</div>
+    <a class="aui-pull-right aui-btn aui-btn-outlined">
+        <span class="aui-iconfont aui-icon-plus"
+              th:onclick="|goVideoAdd()|"></span>
+    </a>
     <a class="aui-pull-right aui-btn aui-btn-outlined">
         <span class="aui-iconfont aui-icon-date" th:data="${searchText}"
               th:onclick="|goVideoViewHistory(this.getAttribute('data'))|"></span>
@@ -34,7 +38,7 @@
     </div>
     <ul class="aui-list aui-media-list">
         <li class="aui-list-item"
-            th:if="${searchText} == null and ${viewHistory} != null"
+            th:if="${searchText == null && viewHistory != null}"
             th:data="${viewHistory.videoId}"
             th:onclick="|goVideoPlay(this.getAttribute('data'),${viewHistory.episodeIndex})|">
             <div class="aui-media-list-item-inner">
@@ -58,8 +62,7 @@
                 class="aui-list-item"
                 th:each="video: ${videoList}"
                 th:data="${video.id}"
-                th:onclick="|goVideoInfo(this.getAttribute('data'))|"
-        >
+                th:onclick="|goVideoInfo(this.getAttribute('data'))|">
             <div class="aui-media-list-item-inner">
                 <div class="aui-list-item-inner">
                     <div
@@ -76,7 +79,7 @@
     </ul>
 </section>
 </body>
-<script type="text/javascript">
+<script th:inline="javascript">
 
     let searchBar = document.querySelector(".aui-searchbar");
     let searchBarInput = document.querySelector(".aui-searchbar input");
@@ -86,23 +89,27 @@
     function goVideoInfo(videoId) {
         let searchText = searchBarInput.value;
         if (searchText.length > 0) {
-            window.location.href = "video_info?videoId=" + videoId + "&searchText=" + searchText;
+            window.location.href = "video/video_info?videoId=" + videoId + "&searchText=" + searchText;
         } else {
-            window.location.href = "video_info?videoId=" + videoId;
+            window.location.href = "video/video_info?videoId=" + videoId;
         }
     }
 
     function goVideoPlay(videoId, episodeIndex) {
         window.location.href =
-            "video_play?videoId=" + videoId + "&episodeIndex=" + episodeIndex;
+            "video/video_play?videoId=" + videoId + "&episodeIndex=" + episodeIndex;
     }
 
     function goVideoViewHistory(searchText) {
         if (searchText != null && searchText.length > 0) {
-            window.location.href = "video_view_history?searchText=" + searchText
+            window.location.href = "video/video_view_history?searchText=" + searchText
         } else {
-            window.location.href = "video_view_history"
+            window.location.href = "video/video_view_history"
         }
+    }
+
+    function goVideoAdd() {
+        window.location.href = "video/video_add"
     }
 
     if (searchBar) {
@@ -124,7 +131,6 @@
         } else {
             window.location.href = "video";
         }
-
     }
 </script>
 </html>

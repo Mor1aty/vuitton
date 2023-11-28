@@ -1,8 +1,8 @@
 package com.moriaty.vuitton.service.novel.downloader;
 
-import com.moriaty.vuitton.bean.novel.NovelChapter;
-import com.moriaty.vuitton.bean.novel.NovelContent;
-import com.moriaty.vuitton.bean.novel.QueryNovelInfo;
+import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
+import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
+import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -38,18 +38,18 @@ public class TwoBiQuNovelDownloader implements NovelDownloader {
     }
 
     @Override
-    public QueryNovelInfo queryNovel(String queryName) {
-        return new QueryNovelInfo()
+    public QueryNetworkNovelInfo queryNovel(String searchText) {
+        return new QueryNetworkNovelInfo()
                 .setSourceName("2笔趣阁")
                 .setSourceWebsite(getInfo().getWebsite())
                 .setSourceMark(getInfo().getMark())
-                .setWebSearch(getInfo().getWebsite() + "/s?q=" + queryName);
+                .setWebSearch(getInfo().getWebsite() + "/s?q=" + searchText);
     }
 
     @Override
-    public List<NovelChapter> findChapterList(String catalogueAppend) {
+    public List<NetworkNovelChapter> findChapterList(String catalogueAppend) {
         try {
-            List<NovelChapter> chapterList = new ArrayList<>();
+            List<NetworkNovelChapter> chapterList = new ArrayList<>();
             Document doc = Jsoup.connect(getInfo().getCatalogueBaseUrl() + catalogueAppend).timeout(5000).get();
             Element list = doc.getElementById("section-list");
             if (list == null) {
@@ -61,7 +61,7 @@ public class TwoBiQuNovelDownloader implements NovelDownloader {
                 Element li = liList.get(i);
                 Element a = li.getElementsByTag("a").get(0);
                 String href = a.attr("href");
-                chapterList.add(new NovelChapter()
+                chapterList.add(new NetworkNovelChapter()
                         .setIndex(i)
                         .setName(a.text())
                         .setUrl(catalogueAppend + "/" + href));
@@ -74,7 +74,7 @@ public class TwoBiQuNovelDownloader implements NovelDownloader {
     }
 
     @Override
-    public NovelContent findContent(String chapterName, String contentAppend) {
+    public NetworkNovelContent findContent(String chapterName, String contentAppend) {
         try {
             log.info("下载 {} {}", chapterName, getInfo().getContentBaseUrl() + contentAppend);
             Document doc = Jsoup.connect(getInfo().getContentBaseUrl() + contentAppend).timeout(300000)
@@ -82,16 +82,16 @@ public class TwoBiQuNovelDownloader implements NovelDownloader {
                             "(KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36").get();
             Element content = doc.getElementById("content");
             if (content == null) {
-                return new NovelContent()
+                return new NetworkNovelContent()
                         .setErrorMsg("正文不存在");
             }
-            return new NovelContent()
+            return new NetworkNovelContent()
                     .setTitle(chapterName)
                     .setContent(handleContent(content.text()))
                     .setContentHtml(content.html());
         } catch (IOException e) {
             log.error("find content exception occur", e);
-            return new NovelContent()
+            return new NetworkNovelContent()
                     .setErrorMsg("获取小说内容发生异常, " + e.getLocalizedMessage());
         }
     }

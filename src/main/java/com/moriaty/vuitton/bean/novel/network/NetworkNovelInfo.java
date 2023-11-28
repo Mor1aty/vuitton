@@ -1,4 +1,4 @@
-package com.moriaty.vuitton.bean.novel;
+package com.moriaty.vuitton.bean.novel.network;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class NovelInfo {
+public class NetworkNovelInfo {
 
     private String name;
 
@@ -24,5 +24,7 @@ public class NovelInfo {
     private String imgUrl;
 
     private String chapterUrl;
+
+    private String storageKey;
 
 }

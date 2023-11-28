@@ -19,7 +19,6 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
-
 novel:
   location: classpath:/static/novel
 video:

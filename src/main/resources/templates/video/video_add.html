@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuitton</title>
+    <meta
+            name="viewport"
+            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <link rel="stylesheet" type="text/css" href="/static/aui/aui.css"/>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav">
+    <a class="aui-pull-left aui-btn" href="/video">
+        <span class="aui-iconfont aui-icon-left"></span>首页
+    </a>
+    <div class="aui-title">新增视频</div>
+</header>
+<section class="aui-content" style="margin: 0.5rem">
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-item" id="warning" style="display: none">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label aui-text-danger">
+                        异常
+                    </div>
+                    <div class="aui-list-item-input aui-text-danger">
+                        <span id="warningInfo"></span>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        名称
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="名称" id="name">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        海报
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="海报" id="coverImg">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        描述
+                    </div>
+                    <div class="aui-list-item-input">
+                        <textarea placeholder="描述" id="description"></textarea>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" onclick="addVideo()">提交</div>
+                    <div class="aui-btn aui-btn-default aui-margin-l-5" onclick="cancel()">取消</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</section>
+</body>
+<script type="text/javascript">
+    let name = document.getElementById("name");
+    let coverImg = document.getElementById("coverImg");
+    let description = document.getElementById("description");
+    let warning = document.getElementById("warning");
+    let warningInfo = document.getElementById("warningInfo");
+
+    function addVideo() {
+        if (name.value.length === 0) {
+            warningInfo.innerText = '名称不能为空';
+            warning.style.display = 'block'
+            return
+        }
+        window.location.href = "action_add_video?name="
+            + name.value + "&coverImg=" + coverImg.value + "&description=" + description.value;
+    }
+
+    function cancel() {
+        name.value = '';
+        coverImg.value = '';
+        description.value = '';
+        warningInfo.value = '';
+        warning.style.display = 'none';
+    }
+</script>
+</html>

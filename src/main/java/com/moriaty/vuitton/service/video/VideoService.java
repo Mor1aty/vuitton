@@ -1,11 +1,9 @@
 package com.moriaty.vuitton.service.video;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.moriaty.vuitton.bean.video.FindVideoReq;
 import com.moriaty.vuitton.bean.video.VideoAroundEpisode;
 import com.moriaty.vuitton.bean.video.VideoViewHistoryInfo;
 import com.moriaty.vuitton.constant.Constant;
-import com.moriaty.vuitton.core.module.Module;
 import com.moriaty.vuitton.core.wrap.WrapMapper;
 import com.moriaty.vuitton.core.wrap.Wrapper;
 import com.moriaty.vuitton.dao.entity.Video;
@@ -38,7 +36,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Module(id = 1, name = "视频", path = "video")
 public class VideoService {
 
     private final VideoMapper videoMapper;
@@ -53,13 +50,13 @@ public class VideoService {
     @Value("${video.base-prefix}")
     private String videoBasePrefix;
 
-    public Wrapper<List<Video>> findVideo(FindVideoReq req) {
+    public Wrapper<List<Video>> findVideo(String id, String name) {
         LambdaQueryWrapper<Video> queryWrapper = new LambdaQueryWrapper<Video>().orderByAsc(Video::getId);
-        if (StringUtils.hasText(req.getId())) {
-            queryWrapper.eq(Video::getId, req.getId());
+        if (StringUtils.hasText(id)) {
+            queryWrapper.eq(Video::getId, id);
         }
-        if (StringUtils.hasText(req.getName())) {
-            queryWrapper.like(Video::getName, req.getName());
+        if (StringUtils.hasText(name)) {
+            queryWrapper.like(Video::getName, name);
         }
         List<Video> videoList = videoMapper.selectList(queryWrapper);
         return WrapMapper.ok("获取成功", videoList);
@@ -113,7 +110,7 @@ public class VideoService {
         return WrapMapper.ok("插入成功");
     }
 
-    public Wrapper<Void> enterVideo(List<String> videoNameList) {
+    public Wrapper<Void> enterVideo(String name, String coverImg, String description) {
         File baseFileFolder = new File(videoBasePath);
         File[] fileList = baseFileFolder.listFiles();
         if (fileList == null) {
@@ -121,10 +118,12 @@ public class VideoService {
             return WrapMapper.failure(videoBasePath + "目录为空");
         }
         for (File videoFile : fileList) {
-            if (videoNameList.contains(videoFile.getName())) {
+            if (videoFile.getName().equals(name)) {
                 Video video = new Video()
                         .setId(UuidUtil.genId())
-                        .setName(videoFile.getName());
+                        .setName(videoFile.getName())
+                        .setCoverImg(coverImg)
+                        .setDescription(description);
                 videoMapper.insert(video);
                 enterVideoEpisode(video.getId(), videoFile);
             }

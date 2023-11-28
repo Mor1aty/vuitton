@@ -1,8 +1,8 @@
 package com.moriaty.vuitton.service.novel.downloader;
 
-import com.moriaty.vuitton.bean.novel.NovelChapter;
-import com.moriaty.vuitton.bean.novel.NovelContent;
-import com.moriaty.vuitton.bean.novel.QueryNovelInfo;
+import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
+import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
+import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
 
 import java.util.List;
 
@@ -26,10 +26,10 @@ public interface NovelDownloader {
     /**
      * 查询小说
      *
-     * @param queryName String
+     * @param searchText String
      * @return QueryNovelInfo
      */
-    QueryNovelInfo queryNovel(String queryName);
+    QueryNetworkNovelInfo queryNovel(String searchText);
 
     /**
      * 查找目录
@@ -37,7 +37,7 @@ public interface NovelDownloader {
      * @param catalogueAppend String
      * @return List with NovelChapter
      */
-    List<NovelChapter> findChapterList(String catalogueAppend);
+    List<NetworkNovelChapter> findChapterList(String catalogueAppend);
 
     /**
      * 查找正文
@@ -46,7 +46,7 @@ public interface NovelDownloader {
      * @param contentAppend String
      * @return NovelContent
      */
-    NovelContent findContent(String chapterName, String contentAppend);
+    NetworkNovelContent findContent(String chapterName, String contentAppend);
 
     /**
      * 处理正文

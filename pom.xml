@@ -68,13 +68,20 @@
 			<version>3.44.0.0</version>
 		</dependency>
 		<!-- sqlite end -->
-		<!--mybatis plus begin-->
+		<!-- mybatis plus begin-->
 		<dependency>
 			<groupId>com.baomidou</groupId>
 			<artifactId>mybatis-plus-boot-starter</artifactId>
 			<version>3.5.4.1</version>
 		</dependency>
 		<!-- mybatis plus end -->
+		<!-- html unit begin-->
+		<dependency>
+			<groupId>net.sourceforge.htmlunit</groupId>
+			<artifactId>htmlunit</artifactId>
+			<version>2.70.0</version>
+		</dependency>
+		<!-- html unit end -->
 	</dependencies>
 
 	<build>

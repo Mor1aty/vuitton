@@ -1,4 +1,4 @@
-package com.moriaty.vuitton.bean.novel;
+package com.moriaty.vuitton.bean.novel.network;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class NovelChapter {
+public class NetworkNovelChapter {
 
     private int index;
 

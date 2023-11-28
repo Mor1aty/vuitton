@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuitton</title>
+    <meta
+            name="viewport"
+            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <link rel="stylesheet" type="text/css" href="/static/aui/aui.css"/>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav">
+    结果
+</header>
+<section class="aui-content" style="margin: 0.5rem">
+    <h1 th:text="${actionMsg}"></h1>
+    <div class="aui-btn aui-btn-primary aui-btn-block aui-btn-outlined aui-btn-sm"
+         th:data="${backUrl}" th:onclick="|goBack(this.getAttribute('data'))|">确定
+    </div>
+</section>
+</body>
+<script type="text/javascript">
+    function goBack(backUrl) {
+        window.location.href = backUrl;
+    }
+</script>
+</html>

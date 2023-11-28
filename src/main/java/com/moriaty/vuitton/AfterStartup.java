@@ -1,6 +1,7 @@
 package com.moriaty.vuitton;
 
 import com.moriaty.vuitton.bean.view.Module;
+import com.moriaty.vuitton.core.storage.MemoryStorage;
 import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
 import com.moriaty.vuitton.service.novel.NovelFactory;
 import com.moriaty.vuitton.service.view.ModuleFactory;
@@ -40,6 +41,7 @@ public class AfterStartup implements CommandLineRunner {
         loadBaseInfo();
         loadModule();
         loadNovelDownloader();
+        loadMemoryStorage();
     }
 
     private void loadBaseInfo() {
@@ -110,5 +112,9 @@ public class AfterStartup implements CommandLineRunner {
             NovelFactory.putDownloaderMap(novelDownloaderMap);
             log.info("可用的小说下载器[{}]: {}", novelDownloaderMap.size(), sb);
         }
+    }
+
+    private void loadMemoryStorage() {
+        MemoryStorage.initMemoryStorage();
     }
 }

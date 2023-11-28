@@ -1,4 +1,4 @@
-package com.moriaty.vuitton.bean.novel;
+package com.moriaty.vuitton.bean.novel.network;
 
 import lombok.Data;
 
@@ -11,7 +11,7 @@ import lombok.Data;
  * @since 2023/10/28 18:16
  */
 @Data
-public class DownloadNovelReq {
+public class DownloadNetworkNovelReq {
 
     private String downloaderMark;
 

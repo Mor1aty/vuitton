@@ -1,4 +1,4 @@
-package com.moriaty.vuitton.bean.novel;
+package com.moriaty.vuitton.bean.novel.network;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class QueryNovelInfo {
+public class QueryNetworkNovelInfo {
 
     private String webSearch;
 
@@ -27,6 +27,6 @@ public class QueryNovelInfo {
 
     private String sourceMark;
 
-    private List<NovelInfo> novelInfoList;
+    private List<NetworkNovelInfo> novelInfoList;
 
 }
