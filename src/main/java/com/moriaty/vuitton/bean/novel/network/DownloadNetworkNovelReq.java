@@ -15,7 +15,7 @@ public class DownloadNetworkNovelReq {
 
     private String downloaderMark;
 
-    private String catalogueAppend;
+    private String chapterUrl;
 
     private String novelName;
 

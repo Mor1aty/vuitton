@@ -19,9 +19,10 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
-novel:
-  location: classpath:/static/novel
-video:
-  file-server-url: http://%s:8081
-  base-path: /data/video
-  base-prefix: /video/
+file-server:
+  url: http://%s:8081
+  novel:
+    location: /data/novel/
+  video:
+    base-path: /data/video
+    base-prefix: /video/

@@ -51,4 +51,15 @@ public class Constant {
                               "(KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
         );
     }
+
+    public static class Novel {
+
+        private Novel() {
+
+        }
+
+        public static final int DOWNLOAD_STATUS_ASK = 1;
+
+        public static final int DOWNLOAD_STATUS_DO = 2;
+    }
 }

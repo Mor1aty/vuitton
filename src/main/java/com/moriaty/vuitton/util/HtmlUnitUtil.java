@@ -29,7 +29,7 @@ public class HtmlUnitUtil {
             webClient.getOptions().setThrowExceptionOnScriptError(false);
             webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
             webClient.getOptions().setActiveXNative(false);
-            webClient.getOptions().setCssEnabled(true);
+            webClient.getOptions().setCssEnabled(false);
             webClient.getOptions().setJavaScriptEnabled(true);
             webClient.getOptions().setTimeout(Constant.Network.CONNECT_TIMEOUT);
             webClient.setJavaScriptTimeout(Constant.Network.CONNECT_TIMEOUT);

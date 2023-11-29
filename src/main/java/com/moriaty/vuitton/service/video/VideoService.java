@@ -44,11 +44,11 @@ public class VideoService {
 
     private final VideoViewHistoryMapper videoViewHistoryMapper;
 
-    @Value("${video.base-path}")
-    private String videoBasePath;
+    @Value("${file-server.video.base-path}")
+    private String fsVideoBasePath;
 
-    @Value("${video.base-prefix}")
-    private String videoBasePrefix;
+    @Value("${file-server.video.base-prefix}")
+    private String fsVideoBasePrefix;
 
     public Wrapper<List<Video>> findVideo(String id, String name) {
         LambdaQueryWrapper<Video> queryWrapper = new LambdaQueryWrapper<Video>().orderByAsc(Video::getId);
@@ -111,11 +111,11 @@ public class VideoService {
     }
 
     public Wrapper<Void> enterVideo(String name, String coverImg, String description) {
-        File baseFileFolder = new File(videoBasePath);
+        File baseFileFolder = new File(fsVideoBasePath);
         File[] fileList = baseFileFolder.listFiles();
         if (fileList == null) {
-            log.info("{} 目录为空", videoBasePath);
-            return WrapMapper.failure(videoBasePath + "目录为空");
+            log.info("{} 目录为空", fsVideoBasePath);
+            return WrapMapper.failure(fsVideoBasePath + "目录为空");
         }
         for (File videoFile : fileList) {
             if (videoFile.getName().equals(name)) {
@@ -148,7 +148,7 @@ public class VideoService {
                         .setEpisodeIndex(index)
                         .setEpisodeName(episodeFile.getName()
                                 .substring(0, episodeFile.getName().lastIndexOf(".")))
-                        .setEpisodeUrl(videoBasePrefix + video.getName() + "/" + episodeFile.getName()));
+                        .setEpisodeUrl(fsVideoBasePrefix + video.getName() + "/" + episodeFile.getName()));
                 index++;
             }
         }

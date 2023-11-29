@@ -35,6 +35,10 @@
         <span class="aui-iconfont aui-icon-left"></span>返回
     </a>
     <div class="aui-title">Vuitton 网络小说</div>
+    <a class="aui-pull-right aui-btn aui-btn-outlined">
+        <span class="aui-iconfont aui-icon-paper"
+              onclick="goNetworkNovelDownload()"></span>
+    </a>
 </header>
 <section class="aui-content" style="margin: 0.5rem">
     <div class="aui-card-list">
@@ -83,14 +87,22 @@
 <script th:inline="javascript">
 
     function goNetworkNovelContent(chapterIndex) {
-        window.location.href = "network_novel_content?" +
-            "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
+        window.location.href = "network_novel_content?"
+            + "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
             + "&novelStorageKey=" + [[${novelStorageKey}]]
             + "&novelPageKey=" + [[${novelPageKey}]]
             + "&queryCatalogueStorageKey=" + [[${queryCatalogueStorageKey}]]
             + "&chapterIndex=" + chapterIndex
             + "&networkNovelInfoPageKey=" + [[${networkNovelInfoPageKey}]]
             + "&downloaderMark=" + [[${novelInfo.downloaderMark}]]
+    }
+
+    function goNetworkNovelDownload() {
+        window.location.href = "network_novel_download?"
+            + "downloadNovelName=" + [[${novelInfo.name}]]
+            + "&downloadChapterUrl=" + [[${novelInfo.chapterUrl}]]
+            + "&downloaderMark=" + [[${novelInfo.downloaderMark}]]
+            + "&downloadStatus=1"
     }
 
     function showCoverImg(image) {

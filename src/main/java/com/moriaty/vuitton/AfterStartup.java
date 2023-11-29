@@ -32,8 +32,8 @@ public class AfterStartup implements CommandLineRunner {
     @Value("${server.port:#{null}}")
     private String port;
 
-    @Value("${video.file-server-url}")
-    private String videoFileServerUrl;
+    @Value("${file-server.url}")
+    private String fsUrl;
 
 
     @Override
@@ -55,7 +55,7 @@ public class AfterStartup implements CommandLineRunner {
         String serverUrl = "http://" + ipAddress + portStr;
         log.info("网站地址: http://127.0.0.1{} {}", portStr, serverUrl);
         ServerInfo.BASE_INFO.setServerUrl(serverUrl).setServerHost(ipAddress).setServerPort(port)
-                .setFileServerUrl(String.format(videoFileServerUrl, ipAddress));
+                .setFileServerUrl(String.format(fsUrl, ipAddress));
     }
 
     private String findInternalIpAddress() {

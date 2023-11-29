@@ -34,10 +34,10 @@ public interface NovelDownloader {
     /**
      * 查找目录
      *
-     * @param catalogueAppend String
+     * @param chapterUrl String
      * @return List with NovelChapter
      */
-    List<NetworkNovelChapter> findChapterList(String catalogueAppend);
+    List<NetworkNovelChapter> findChapterList(String chapterUrl);
 
     /**
      * 查找正文

@@ -109,10 +109,10 @@ public class QuanMingNovelDownloader implements NovelDownloader {
     }
 
     @Override
-    public List<NetworkNovelChapter> findChapterList(String catalogueAppend) {
+    public List<NetworkNovelChapter> findChapterList(String chapterUrl) {
         try {
             List<NetworkNovelChapter> chapterList = new ArrayList<>();
-            Document doc = Jsoup.connect(info.getWebsite() + catalogueAppend)
+            Document doc = Jsoup.connect(info.getWebsite() + chapterUrl)
                     .timeout(Constant.Network.CONNECT_TIMEOUT)
                     .headers(Constant.Network.CHROME_HEADERS)
                     .get();

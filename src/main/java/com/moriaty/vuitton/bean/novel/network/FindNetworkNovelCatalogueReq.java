@@ -11,10 +11,10 @@ import lombok.Data;
  * @since 2023/10/28 22:14
  */
 @Data
-public class FindNetworkCatalogueReq {
+public class FindNetworkNovelCatalogueReq {
 
     private String downloaderMark;
 
-    private String catalogueAppend;
+    private String chapterUrl;
 
 }

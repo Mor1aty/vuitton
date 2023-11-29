@@ -20,6 +20,10 @@
         <span class="aui-iconfont aui-icon-date"
               onclick=""></span>
     </a>
+    <a class="aui-pull-right aui-btn aui-btn-outlined">
+        <span class="aui-iconfont aui-icon-paper"
+              onclick="goNetworkNovelDownload()"></span>
+    </a>
 </header>
 <div class="aui-tab" id="tab">
     <div class="aui-tab-item aui-active">本地小说</div>
@@ -153,6 +157,10 @@
             paramStr = paramStr.substring(0, paramStr.length - 1);
         }
         return paramStr;
+    }
+
+    function goNetworkNovelDownload() {
+        window.location.href = "novel/network_novel_download";
     }
 
     // local novel script

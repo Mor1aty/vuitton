@@ -56,19 +56,10 @@ public class NovelView {
         }
         model.addAttribute("downloaderList", NovelFactory.getAllDownloaderInfo());
         if (StringUtils.hasText(localSearchText)) {
-            log.info("{}", localSearchText);
+            model = handleLocalNovel(model, localSearchText);
         }
         if (StringUtils.hasText(networkSearchText)) {
-            Wrapper<List<QueryNetworkNovelInfo>> queryNovelWrapper = novelNetworkService.queryNovel(networkSearchText,
-                    downloaderMarkList != null && !downloaderMarkList.isEmpty() ? downloaderMarkList : List.of());
-            if (WrapMapper.isOk(queryNovelWrapper)) {
-                Map<String, QueryNetworkNovelInfo> searchResultMap = queryNovelWrapper.data().stream()
-                        .collect(Collectors.toMap(QueryNetworkNovelInfo::getDownloaderMark, Function.identity()));
-                String queryNetworkNovelStorageKey = "queryNetworkNovel-" + UuidUtil.genId();
-                MemoryStorage.put(queryNetworkNovelStorageKey, searchResultMap);
-                model.addAttribute("searchResultMap", searchResultMap);
-                model.addAttribute("queryNetworkNovelStorageKey", queryNetworkNovelStorageKey);
-            }
+            model = handleNetworkNovel(model, networkSearchText, downloaderMarkList);
         }
         model.addAttribute("localSearchText", localSearchText);
         model.addAttribute("networkSearchText", networkSearchText);
@@ -78,6 +69,25 @@ public class NovelView {
         model.addAttribute("novelPageKey", novelPageKey);
         MemoryStorage.putForever(novelPageKey, model.asMap());
         return "novel/novel";
+    }
+
+    public Model handleLocalNovel(Model model, String localSearchText) {
+        log.info("{}", localSearchText);
+        return model;
+    }
+
+    public Model handleNetworkNovel(Model model, String networkSearchText, List<String> downloaderMarkList) {
+        Wrapper<List<QueryNetworkNovelInfo>> queryNovelWrapper = novelNetworkService.queryNovel(networkSearchText,
+                downloaderMarkList != null && !downloaderMarkList.isEmpty() ? downloaderMarkList : List.of());
+        if (WrapMapper.isOk(queryNovelWrapper)) {
+            Map<String, QueryNetworkNovelInfo> searchResultMap = queryNovelWrapper.data().stream()
+                    .collect(Collectors.toMap(QueryNetworkNovelInfo::getDownloaderMark, Function.identity()));
+            String queryNetworkNovelStorageKey = "queryNetworkNovel-" + UuidUtil.genId();
+            MemoryStorage.put(queryNetworkNovelStorageKey, searchResultMap);
+            model.addAttribute("searchResultMap", searchResultMap);
+            model.addAttribute("queryNetworkNovelStorageKey", queryNetworkNovelStorageKey);
+        }
+        return model;
     }
 
     @RequestMapping("network_novel_info")
@@ -138,6 +148,27 @@ public class NovelView {
         return "novel/network/network_novel_info";
     }
 
+    private NetworkNovelInfo findStorageNovelInfo(String queryNetworkNovelStorageKey,
+                                                  String novelStorageKey) {
+        Map<String, QueryNetworkNovelInfo> queryStorageValue =
+                MemoryStorage.get(queryNetworkNovelStorageKey, new TypeReference<>() {
+                });
+        if (queryStorageValue == null) {
+            return null;
+        }
+        for (QueryNetworkNovelInfo value : queryStorageValue.values()) {
+            if (value.getNovelInfoList() == null || value.getNovelInfoList().isEmpty()) {
+                continue;
+            }
+            for (NetworkNovelInfo novelInfo : value.getNovelInfoList()) {
+                if (novelInfo.getStorageKey().equals(novelStorageKey)) {
+                    return novelInfo;
+                }
+            }
+        }
+        return null;
+    }
+
     @RequestMapping("network_novel_content")
     public String networkNovelContent(Model model,
                                       @RequestParam("queryNetworkNovelStorageKey") String queryNetworkNovelStorageKey,
@@ -185,31 +216,10 @@ public class NovelView {
         model.addAttribute("downloaderMark", downloaderMark);
         model.addAttribute("queryNetworkNovelStorageKey", queryNetworkNovelStorageKey);
         model.addAttribute("queryCatalogueStorageKey", queryCatalogueStorageKey);
-        model.addAttribute("novelStorageKey", queryCatalogueStorageKey);
-        model.addAttribute("novelPageKey", queryCatalogueStorageKey);
+        model.addAttribute("novelStorageKey", novelStorageKey);
+        model.addAttribute("novelPageKey", novelPageKey);
         model.addAttribute("networkNovelInfoPageKey", networkNovelInfoPageKey);
         return "novel/network/network_novel_content";
-    }
-
-    private NetworkNovelInfo findStorageNovelInfo(String queryNetworkNovelStorageKey,
-                                                  String novelStorageKey) {
-        Map<String, QueryNetworkNovelInfo> queryStorageValue =
-                MemoryStorage.get(queryNetworkNovelStorageKey, new TypeReference<>() {
-                });
-        if (queryStorageValue == null) {
-            return null;
-        }
-        for (QueryNetworkNovelInfo value : queryStorageValue.values()) {
-            if (value.getNovelInfoList() == null || value.getNovelInfoList().isEmpty()) {
-                continue;
-            }
-            for (NetworkNovelInfo novelInfo : value.getNovelInfoList()) {
-                if (novelInfo.getStorageKey().equals(novelStorageKey)) {
-                    return novelInfo;
-                }
-            }
-        }
-        return null;
     }
 
     private NetworkNovelAroundChapter findStorageNovelAroundChapter(String queryCatalogueStorageKey, int chapterIndex) {
@@ -227,5 +237,22 @@ public class NovelView {
             aroundChapter.setNextChapter(chapterList.get(chapterIndex + 1));
         }
         return aroundChapter;
+    }
+
+    @RequestMapping("network_novel_download")
+    public String networkNovelDownload(Model model,
+                                       @RequestParam(value = "downloadNovelName", required = false)
+                                       String downloadNovelName,
+                                       @RequestParam(value = "downloadChapterUrl", required = false)
+                                       String downloadChapterUrl,
+                                       @RequestParam(value = "downloaderMark", required = false)
+                                       String downloaderMark,
+                                       @RequestParam(value = "downloadStatus", required = false)
+                                       String downloadStatusStr) {
+        model.addAttribute("downloadNovelName", downloadNovelName);
+        model.addAttribute("downloadChapterUrl", downloadChapterUrl);
+        model.addAttribute("downloaderMark", downloaderMark);
+        model.addAttribute("downloadStatus", downloadStatusStr);
+        return "novel/network/network_novel_download";
     }
 }

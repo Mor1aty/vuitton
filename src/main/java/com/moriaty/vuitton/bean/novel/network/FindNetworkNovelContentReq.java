@@ -11,7 +11,7 @@ import lombok.Data;
  * @since 2023/10/28 22:19
  */
 @Data
-public class FindNetworkContentReq {
+public class FindNetworkNovelContentReq {
 
     private String chapterName;
 

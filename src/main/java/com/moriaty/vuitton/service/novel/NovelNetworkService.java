@@ -36,13 +36,14 @@ import java.util.concurrent.ThreadFactory;
 @Slf4j
 public class NovelNetworkService {
 
-    @Value("${novel.location}")
-    private String novelFileLocation;
+    @Value("${file-server.novel.location}")
+    private String fsNovelFileLocation;
 
     public Wrapper<List<QueryNetworkNovelInfo>> queryNovel(String searchText, List<String> downloaderMarkList) {
         if (!StringUtils.hasText(searchText)) {
             return WrapMapper.illegalParam("小说查询不能为空");
         }
+        log.info("查询小说: {}, 来源: {}", searchText, downloaderMarkList);
         List<NovelDownloader> downloaderList = new ArrayList<>();
         if (downloaderMarkList != null) {
             downloaderMarkList.forEach(downloaderMark
@@ -63,7 +64,7 @@ public class NovelNetworkService {
         if (!StringUtils.hasText(req.getDownloaderMark())) {
             return WrapMapper.illegalParam("下载 mark 不能为空");
         }
-        if (!StringUtils.hasText(req.getCatalogueAppend())) {
+        if (!StringUtils.hasText(req.getChapterUrl())) {
             return WrapMapper.illegalParam("目录补充不能为空");
         }
         if (!StringUtils.hasText(req.getNovelName())) {
@@ -75,8 +76,8 @@ public class NovelNetworkService {
         }
         log.info("开始下载小说 {} [{}-{}-{}]", req.getNovelName(), downloader.getInfo().getWebName(),
                 downloader.getInfo().getMark(), downloader.getInfo().getWebsite());
-        List<NetworkNovelChapter> chapterList = downloader.findChapterList(req.getCatalogueAppend());
-        String file = novelFileLocation + File.separator + req.getNovelName() + ".txt";
+        List<NetworkNovelChapter> chapterList = downloader.findChapterList(req.getChapterUrl());
+        String file = fsNovelFileLocation + File.separator + req.getNovelName() + ".txt";
 
         try {
             // 使用虚拟线程下载
@@ -133,7 +134,7 @@ public class NovelNetworkService {
     }
 
     private boolean writeNovelToFile(String novelName, int chapterNum, Map<Integer, NetworkNovelContent> novelMap) {
-        String file = novelFileLocation + File.separator + novelName + ".txt";
+        String file = fsNovelFileLocation + File.separator + novelName + ".txt";
         try (FileWriter fileWriter = new FileWriter(file, true)) {
             fileWriter.write(novelName);
             fileWriter.write("\n\n");
@@ -165,18 +166,19 @@ public class NovelNetworkService {
         }
     }
 
-    public Wrapper<List<NetworkNovelChapter>> findCatalogue(String downloaderMark, String catalogueAppend) {
+    public Wrapper<List<NetworkNovelChapter>> findCatalogue(String downloaderMark, String chapterUrl) {
         if (!StringUtils.hasText(downloaderMark)) {
             return WrapMapper.illegalParam("下载 mark 不能为空");
         }
-        if (!StringUtils.hasText(catalogueAppend)) {
+        if (!StringUtils.hasText(chapterUrl)) {
             return WrapMapper.illegalParam("目录补充不能为空");
         }
+        log.info("查询小说[{}]章节, 来源: {}", chapterUrl, downloaderMark);
         NovelDownloader downloader = NovelFactory.getDownloader(downloaderMark);
         if (downloader == null) {
             return WrapMapper.failure("小说下载器 " + downloaderMark + " 不存在");
         }
-        List<NetworkNovelChapter> chapterList = downloader.findChapterList(catalogueAppend);
+        List<NetworkNovelChapter> chapterList = downloader.findChapterList(chapterUrl);
         return WrapMapper.ok(chapterList);
     }
 
@@ -190,6 +192,7 @@ public class NovelNetworkService {
         if (!StringUtils.hasText(chapterUrl)) {
             return WrapMapper.illegalParam("章节 url 不能为空");
         }
+        log.info("查询小说章节[{}]内容, 来源: {}", chapterName, downloaderMark);
         NovelDownloader downloader = NovelFactory.getDownloader(downloaderMark);
         if (downloader == null) {
             return WrapMapper.failure("小说下载器 " + downloaderMark + " 不存在");
