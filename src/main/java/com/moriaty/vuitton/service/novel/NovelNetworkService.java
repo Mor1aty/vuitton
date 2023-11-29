@@ -165,37 +165,37 @@ public class NovelNetworkService {
         }
     }
 
-    public Wrapper<List<NetworkNovelChapter>> findCatalogue(FindNetworkCatalogueReq req) {
-        if (!StringUtils.hasText(req.getDownloaderMark())) {
+    public Wrapper<List<NetworkNovelChapter>> findCatalogue(String downloaderMark, String catalogueAppend) {
+        if (!StringUtils.hasText(downloaderMark)) {
             return WrapMapper.illegalParam("下载 mark 不能为空");
         }
-        if (!StringUtils.hasText(req.getCatalogueAppend())) {
+        if (!StringUtils.hasText(catalogueAppend)) {
             return WrapMapper.illegalParam("目录补充不能为空");
         }
-        NovelDownloader downloader = NovelFactory.getDownloader(req.getDownloaderMark());
+        NovelDownloader downloader = NovelFactory.getDownloader(downloaderMark);
         if (downloader == null) {
-            return WrapMapper.failure("小说下载器 " + req.getDownloaderMark() + " 不存在");
+            return WrapMapper.failure("小说下载器 " + downloaderMark + " 不存在");
         }
-        List<NetworkNovelChapter> chapterList = downloader.findChapterList(req.getCatalogueAppend());
+        List<NetworkNovelChapter> chapterList = downloader.findChapterList(catalogueAppend);
         return WrapMapper.ok(chapterList);
     }
 
-    public Wrapper<NetworkNovelContent> findContent(FindNetworkContentReq req) {
-        if (!StringUtils.hasText(req.getDownloaderMark())) {
+    public Wrapper<NetworkNovelContent> findContent(String chapterName, String chapterUrl, String downloaderMark) {
+        if (!StringUtils.hasText(downloaderMark)) {
             return WrapMapper.illegalParam("下载 mark 不能为空");
         }
-        if (!StringUtils.hasText(req.getChapterName())) {
+        if (!StringUtils.hasText(chapterName)) {
             return WrapMapper.illegalParam("章节名不能为空");
         }
-        if (!StringUtils.hasText(req.getChapterUrl())) {
+        if (!StringUtils.hasText(chapterUrl)) {
             return WrapMapper.illegalParam("章节 url 不能为空");
         }
-        NovelDownloader downloader = NovelFactory.getDownloader(req.getDownloaderMark());
+        NovelDownloader downloader = NovelFactory.getDownloader(downloaderMark);
         if (downloader == null) {
-            return WrapMapper.failure("小说下载器 " + req.getDownloaderMark() + " 不存在");
+            return WrapMapper.failure("小说下载器 " + downloaderMark + " 不存在");
         }
-        NetworkNovelContent content = downloader.findContent(req.getChapterName(), req.getChapterUrl());
-        content.setTitle(req.getChapterName());
+        NetworkNovelContent content = downloader.findContent(chapterName, chapterUrl);
+        content.setTitle(chapterName);
         return WrapMapper.ok(content);
     }
 }

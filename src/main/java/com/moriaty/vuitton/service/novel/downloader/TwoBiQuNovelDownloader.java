@@ -27,30 +27,32 @@ import java.util.List;
 @Slf4j
 public class TwoBiQuNovelDownloader implements NovelDownloader {
 
+    private final NovelDownloaderInfo info = new NovelDownloaderInfo()
+            .setWebName("2笔趣阁")
+            .setMark("2BiQu")
+            .setWebsite("https://www.2biqu.com")
+            .setContentBaseUrl("https://www.2biqu.com/")
+            .setCatalogueBaseUrl("https://www.2biqu.com/");
+
     @Override
     public NovelDownloaderInfo getInfo() {
-        return new NovelDownloaderInfo()
-                .setWebName("2笔趣阁")
-                .setMark("2BiQu")
-                .setWebsite("https://www.2biqu.com")
-                .setContentBaseUrl("https://www.2biqu.com/")
-                .setCatalogueBaseUrl("https://www.2biqu.com/");
+        return info;
     }
 
     @Override
     public QueryNetworkNovelInfo queryNovel(String searchText) {
         return new QueryNetworkNovelInfo()
                 .setSourceName("2笔趣阁")
-                .setSourceWebsite(getInfo().getWebsite())
-                .setSourceMark(getInfo().getMark())
-                .setWebSearch(getInfo().getWebsite() + "/s?q=" + searchText);
+                .setSourceWebsite(info.getWebsite())
+                .setDownloaderMark(info.getMark())
+                .setWebSearch(info.getWebsite() + "/s?q=" + searchText);
     }
 
     @Override
     public List<NetworkNovelChapter> findChapterList(String catalogueAppend) {
         try {
             List<NetworkNovelChapter> chapterList = new ArrayList<>();
-            Document doc = Jsoup.connect(getInfo().getCatalogueBaseUrl() + catalogueAppend).timeout(5000).get();
+            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + catalogueAppend).timeout(5000).get();
             Element list = doc.getElementById("section-list");
             if (list == null) {
                 log.error("find chapter list page error, section-list is not found");
@@ -76,10 +78,10 @@ public class TwoBiQuNovelDownloader implements NovelDownloader {
     @Override
     public NetworkNovelContent findContent(String chapterName, String contentAppend) {
         try {
-            log.info("下载 {} {}", chapterName, getInfo().getContentBaseUrl() + contentAppend);
-            Document doc = Jsoup.connect(getInfo().getContentBaseUrl() + contentAppend).timeout(300000)
+            log.info("下载 {} {}", chapterName, info.getContentBaseUrl() + contentAppend);
+            Document doc = Jsoup.connect(info.getContentBaseUrl() + contentAppend).timeout(300000)
                     .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-                            "(KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36").get();
+                                          "(KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36").get();
             Element content = doc.getElementById("content");
             if (content == null) {
                 return new NetworkNovelContent()

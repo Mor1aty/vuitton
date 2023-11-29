@@ -27,4 +27,6 @@ public class NetworkNovelInfo {
 
     private String storageKey;
 
+    private String downloaderMark;
+
 }

@@ -16,6 +16,10 @@
         <span class="aui-iconfont aui-icon-left"></span>首页
     </a>
     <div class="aui-title">Vuitton 小说</div>
+    <a class="aui-pull-right aui-btn aui-btn-outlined">
+        <span class="aui-iconfont aui-icon-date"
+              onclick="goTest()"></span>
+    </a>
 </header>
 <div class="aui-tab" id="tab">
     <div class="aui-tab-item aui-active">本地小说</div>
@@ -100,6 +104,15 @@
 </body>
 <script src="/static/aui/aui-tab.js"></script>
 <script th:inline="javascript">
+
+    // Test
+    function goTest() {
+        window.location.href = "novel/network_novel_info?queryNetworkNovelStorageKey=testQueryNetworkNovelStorageKey"
+            + "&novelStorageKey=testNovelStorageKey"
+            + "&novelPageKey=testNovelPageKey"
+            + "&queryCatalogueStorageKey=testQueryCatalogueStorageKey"
+    }
+
     const localNovelTabIndex = "1";
     const networkNovelTabIndex = "2";
 
@@ -246,8 +259,8 @@
     }
 
     function goNetworkNovelInfo(novelStorageKey) {
-        window.location.href = "novel/network_novel_info?queryStorageKey="
-            + [[${queryStorageKey}]] + "&novelStorageKey=" + novelStorageKey
+        window.location.href = "novel/network_novel_info?queryNetworkNovelStorageKey="
+            + [[${queryNetworkNovelStorageKey}]] + "&novelStorageKey=" + novelStorageKey
             + "&novelPageKey=" + [[${novelPageKey}]]
     }
 

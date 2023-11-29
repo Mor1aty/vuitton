@@ -25,7 +25,7 @@ public class QueryNetworkNovelInfo {
 
     private String sourceName;
 
-    private String sourceMark;
+    private String downloaderMark;
 
     private List<NetworkNovelInfo> novelInfoList;
 

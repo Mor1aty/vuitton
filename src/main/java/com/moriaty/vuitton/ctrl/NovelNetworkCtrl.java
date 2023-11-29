@@ -43,12 +43,12 @@ public class NovelNetworkCtrl {
     @PostMapping("findNetworkCatalogue")
     public Wrapper<List<NetworkNovelChapter>> findNetworkCatalogue(@RequestBody FindNetworkCatalogueReq req) {
         log.info("novel/findCatalogue, req: {}", req);
-        return novelNetworkService.findCatalogue(req);
+        return novelNetworkService.findCatalogue(req.getDownloaderMark(), req.getCatalogueAppend());
     }
 
     @PostMapping("findContent")
     public Wrapper<NetworkNovelContent> findContent(@RequestBody FindNetworkContentReq req) {
         log.info("novel/findContent, req: {}", req);
-        return novelNetworkService.findContent(req);
+        return novelNetworkService.findContent(req.getChapterName(), req.getChapterUrl(), req.getDownloaderMark());
     }
 }

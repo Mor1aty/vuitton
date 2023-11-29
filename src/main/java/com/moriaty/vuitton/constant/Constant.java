@@ -23,6 +23,7 @@ public class Constant {
         }
 
         public static final String POSITIVE_INTEGER = "^\\d*[1-9]\\d*$";
+        public static final String NATURE_NUMBER = "^\\d*[0-9]\\d*$";
     }
 
     public static class Date {

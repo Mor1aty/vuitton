@@ -56,13 +56,14 @@ public class QuanMingNovelDownloader implements NovelDownloader {
                 NetworkNovelInfo novelInfo = findNovelInfoFromDom(dom);
                 if (novelInfo != null) {
                     novelInfoList.add(novelInfo
-                            .setStorageKey(UuidUtil.genId()));
+                            .setStorageKey(UuidUtil.genId())
+                            .setDownloaderMark(info.getMark()));
                 }
             }
             return new QueryNetworkNovelInfo()
                     .setSourceName("全民小说")
                     .setSourceWebsite(info.getWebsite())
-                    .setSourceMark(info.getMark())
+                    .setDownloaderMark(info.getMark())
                     .setWebSearch(info.getWebsite() + "/s?q=" + searchText)
                     .setNovelInfoList(novelInfoList);
         } catch (IOException e) {
@@ -110,7 +111,7 @@ public class QuanMingNovelDownloader implements NovelDownloader {
     public List<NetworkNovelChapter> findChapterList(String catalogueAppend) {
         try {
             List<NetworkNovelChapter> chapterList = new ArrayList<>();
-            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + catalogueAppend).timeout(5000).get();
+            Document doc = Jsoup.connect(info.getWebsite() + catalogueAppend).timeout(5000).get();
             Element list = doc.getElementsByClass("listmain").get(0);
             Elements ddList = list.getElementsByTag("dd");
             for (int i = 0; i < ddList.size(); i++) {

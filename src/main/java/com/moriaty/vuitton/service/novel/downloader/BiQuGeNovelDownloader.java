@@ -27,30 +27,32 @@ import java.util.List;
 @Slf4j
 public class BiQuGeNovelDownloader implements NovelDownloader {
 
+    private final NovelDownloaderInfo info = new NovelDownloaderInfo()
+            .setWebName("笔趣阁")
+            .setMark("BiQuGe")
+            .setWebsite("http://www.bequgew.info")
+            .setContentBaseUrl("https://www.bequgew.net/")
+            .setCatalogueBaseUrl("http://www.bequgew.info/");
+
     @Override
     public NovelDownloaderInfo getInfo() {
-        return new NovelDownloaderInfo()
-                .setWebName("笔趣阁")
-                .setMark("BiQuGe")
-                .setWebsite("http://www.bequgew.info")
-                .setContentBaseUrl("https://www.bequgew.net/")
-                .setCatalogueBaseUrl("http://www.bequgew.info/");
+        return info;
     }
 
     @Override
     public QueryNetworkNovelInfo queryNovel(String searchText) {
         return new QueryNetworkNovelInfo()
                 .setSourceName("笔趣阁")
-                .setSourceWebsite(getInfo().getWebsite())
-                .setSourceMark(getInfo().getMark())
-                .setWebSearch(getInfo().getWebsite() + "/modules/article/search.php?searchkey=" + searchText);
+                .setSourceWebsite(info.getWebsite())
+                .setDownloaderMark(info.getMark())
+                .setWebSearch(info.getWebsite() + "/modules/article/search.php?searchkey=" + searchText);
     }
 
     @Override
     public List<NetworkNovelChapter> findChapterList(String catalogueAppend) {
         try {
             List<NetworkNovelChapter> chapterList = new ArrayList<>();
-            Document doc = Jsoup.connect(getInfo().getCatalogueBaseUrl() + catalogueAppend).timeout(5000).get();
+            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + catalogueAppend).timeout(5000).get();
             Element list = doc.getElementsByClass("article_texttitleb").get(0);
             Elements liList = list.getElementsByTag("li");
             for (int i = 0; i < liList.size(); i++) {
