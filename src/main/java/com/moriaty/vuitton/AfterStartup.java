@@ -1,8 +1,5 @@
 package com.moriaty.vuitton;
 
-import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
-import com.moriaty.vuitton.bean.novel.network.NetworkNovelInfo;
-import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
 import com.moriaty.vuitton.bean.view.Module;
 import com.moriaty.vuitton.core.storage.MemoryStorage;
 import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
@@ -45,7 +42,6 @@ public class AfterStartup implements CommandLineRunner {
         loadModule();
         loadNovelDownloader();
         loadMemoryStorage();
-        loadTestData();
     }
 
     private void loadBaseInfo() {
@@ -120,28 +116,5 @@ public class AfterStartup implements CommandLineRunner {
 
     private void loadMemoryStorage() {
         MemoryStorage.initMemoryStorage();
-    }
-
-    private void loadTestData() {
-        MemoryStorage.putForever("testQueryNetworkNovelStorageKey",
-                Map.of("testQueryNetworkNovelStorageKey",
-                new QueryNetworkNovelInfo()
-                .setWebSearch("https://www.1q1m.com/s?q=我是")
-                .setSourceWebsite("https://www.1q1m.com")
-                .setSourceName("全民小说")
-                .setDownloaderMark("QuanMing")
-                .setNovelInfoList(List.of(new NetworkNovelInfo()
-                        .setName("我是导演，我不比烂")
-                        .setAuthor("不是老狗")
-                        .setIntro("2006年")
-                        .setImgUrl("https://www.1q1m.com/bookimg/108/108768.jpg")
-                        .setChapterUrl("/book/105224/")
-                        .setStorageKey("testNovelStorageKey")
-                        .setDownloaderMark("QuanMing")))));
-        MemoryStorage.put("testQueryCatalogueStorageKey", List.of(new NetworkNovelChapter()
-                .setIndex(0)
-                .setName("第1章 001梦醒冬日")
-                .setUrl("/book/105224/1.html")));
-
     }
 }

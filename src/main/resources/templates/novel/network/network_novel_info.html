@@ -84,8 +84,10 @@
 
     function goNetworkNovelContent(chapterIndex) {
         window.location.href = "network_novel_content?" +
-            // "queryCatalogueStorageKey=" + [[${queryCatalogueStorageKey}]]
-            "queryCatalogueStorageKey=testQueryCatalogueStorageKey"
+            "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
+            + "&novelStorageKey=" + [[${novelStorageKey}]]
+            + "&novelPageKey=" + [[${novelPageKey}]]
+            + "&queryCatalogueStorageKey=" + [[${queryCatalogueStorageKey}]]
             + "&chapterIndex=" + chapterIndex
             + "&networkNovelInfoPageKey=" + [[${networkNovelInfoPageKey}]]
             + "&downloaderMark=" + [[${novelInfo.downloaderMark}]]

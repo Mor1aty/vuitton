@@ -1,10 +1,8 @@
 package com.moriaty.vuitton.view;
 
 import com.alibaba.fastjson2.TypeReference;
-import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
-import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
-import com.moriaty.vuitton.bean.novel.network.NetworkNovelInfo;
-import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
+import com.moriaty.vuitton.bean.KeyValuePair;
+import com.moriaty.vuitton.bean.novel.network.*;
 import com.moriaty.vuitton.constant.Constant;
 import com.moriaty.vuitton.core.module.Module;
 import com.moriaty.vuitton.core.storage.MemoryStorage;
@@ -53,13 +51,8 @@ public class NovelView {
                         @RequestParam(value = "downloaderMark", required = false) List<String> downloaderMarkList,
                         @RequestParam(value = "tabIndex", required = false) String tabIndex,
                         @RequestParam(value = "novelPageKey", required = false) String novelPageKey) {
-        if (StringUtils.hasText(novelPageKey)) {
-            Map<String, Object> modelAttrMap = MemoryStorage.get(novelPageKey, new TypeReference<>() {
-            });
-            if (modelAttrMap != null) {
-                model.addAllAttributes(modelAttrMap);
-                return "novel/novel";
-            }
+        if (ViewUtil.checkLoaded(model, novelPageKey)) {
+            return "novel/novel";
         }
         model.addAttribute("downloaderList", NovelFactory.getAllDownloaderInfo());
         if (StringUtils.hasText(localSearchText)) {
@@ -96,28 +89,24 @@ public class NovelView {
                                    String queryCatalogueStorageKey,
                                    @RequestParam(value = "networkNovelInfoPageKey", required = false)
                                    String networkNovelInfoPageKey) {
-        if (StringUtils.hasText(networkNovelInfoPageKey)) {
-            Map<String, Object> modelAttrMap = MemoryStorage.get(networkNovelInfoPageKey, new TypeReference<>() {
-            });
-            if (modelAttrMap != null) {
-                model.addAllAttributes(modelAttrMap);
-                return "novel/network/network_novel_info";
-            }
+        if (ViewUtil.checkLoaded(model, networkNovelInfoPageKey)) {
+            return "novel/network/network_novel_info";
         }
-        if (!StringUtils.hasText(queryNetworkNovelStorageKey)
-            || !StringUtils.hasText(novelStorageKey)
-            || !StringUtils.hasText(novelPageKey)) {
-            return ViewUtil.goError(model, "网络小说出问题啦", "queryNetworkNovelStorageKey="
-                                                                   + queryNetworkNovelStorageKey
-                                                                   + ", novelStorageKey=" + novelStorageKey
-                                                                   + ", novelPageKey=" + novelPageKey);
+        if (ViewUtil.checkIllegalParam(queryNetworkNovelStorageKey, novelStorageKey, novelPageKey)) {
+            return ViewUtil.goError(model, "参数出问题啦", KeyValuePair.ofList(
+                    "queryNetworkNovelStorageKey", queryNetworkNovelStorageKey,
+                    "novelStorageKey", novelStorageKey, "novelPageKey", novelPageKey,
+                    "queryCatalogueStorageKey", queryCatalogueStorageKey,
+                    "networkNovelInfoPageKey", networkNovelInfoPageKey));
         }
-        NetworkNovelInfo novelInfo = findNovelInfoFromMemoryStorage(queryNetworkNovelStorageKey, novelStorageKey);
+
+        NetworkNovelInfo novelInfo = findStorageNovelInfo(queryNetworkNovelStorageKey, novelStorageKey);
         if (novelInfo == null) {
-            return ViewUtil.goError(model, "网络小说信息出问题啦", "queryNetworkNovelStorageKey="
-                                                                   + queryNetworkNovelStorageKey
-                                                                   + ", novelStorageKey=" + novelStorageKey
-                                                                   + ", novelPageKey=" + novelPageKey);
+            return ViewUtil.goError(model, "网络小说信息出问题啦", KeyValuePair.ofList(
+                    "queryNetworkNovelStorageKey", queryNetworkNovelStorageKey,
+                    "novelStorageKey", novelStorageKey, "novelPageKey", novelPageKey,
+                    "queryCatalogueStorageKey", queryCatalogueStorageKey,
+                    "networkNovelInfoPageKey", networkNovelInfoPageKey));
         }
         List<NetworkNovelChapter> chapterList = null;
         if (StringUtils.hasText(queryCatalogueStorageKey)) {
@@ -141,6 +130,8 @@ public class NovelView {
         }
         model.addAttribute("novelInfo", novelInfo);
         model.addAttribute("novelPageKey", novelPageKey);
+        model.addAttribute("queryNetworkNovelStorageKey", queryNetworkNovelStorageKey);
+        model.addAttribute("novelStorageKey", novelStorageKey);
         networkNovelInfoPageKey = "networkNovelInfoPageKey-" + UuidUtil.genId();
         model.addAttribute("networkNovelInfoPageKey", networkNovelInfoPageKey);
         MemoryStorage.putForever(networkNovelInfoPageKey, model.asMap());
@@ -148,50 +139,60 @@ public class NovelView {
     }
 
     @RequestMapping("network_novel_content")
-    public String networkNovelInfo(Model model,
-                                   @RequestParam("queryCatalogueStorageKey") String queryCatalogueStorageKey,
-                                   @RequestParam("chapterIndex") String chapterIndexStr,
-                                   @RequestParam("networkNovelInfoPageKey") String networkNovelInfoPageKey,
-                                   @RequestParam("downloaderMark") String downloaderMark) {
-        if (!StringUtils.hasText(queryCatalogueStorageKey)
-            || !StringUtils.hasText(chapterIndexStr)
-            || !StringUtils.hasText(networkNovelInfoPageKey)
-            || !StringUtils.hasText(downloaderMark)) {
-            return ViewUtil.goError(model, "网络小说内容出问题啦", "queryCatalogueStorageKey="
-                                                                   + queryCatalogueStorageKey
-                                                                   + ", chapterIndex=" + chapterIndexStr
-                                                                   + ", networkNovelInfoPageKey="
-                                                                   + networkNovelInfoPageKey
-                                                                   + ", downloaderMark=" + downloaderMark);
+    public String networkNovelContent(Model model,
+                                      @RequestParam("queryNetworkNovelStorageKey") String queryNetworkNovelStorageKey,
+                                      @RequestParam("novelStorageKey") String novelStorageKey,
+                                      @RequestParam("novelPageKey") String novelPageKey,
+                                      @RequestParam("queryCatalogueStorageKey") String queryCatalogueStorageKey,
+                                      @RequestParam("chapterIndex") String chapterIndexStr,
+                                      @RequestParam("networkNovelInfoPageKey") String networkNovelInfoPageKey,
+                                      @RequestParam("downloaderMark") String downloaderMark) {
+        if (ViewUtil.checkIllegalParam(queryNetworkNovelStorageKey, novelStorageKey, novelPageKey,
+                queryCatalogueStorageKey, chapterIndexStr, networkNovelInfoPageKey, downloaderMark)) {
+            return ViewUtil.goError(model, "参数出问题啦", KeyValuePair.ofList(
+                    "queryNetworkNovelStorageKey", queryNetworkNovelStorageKey,
+                    "novelStorageKey", novelStorageKey, "novelPageKey", novelPageKey,
+                    "queryCatalogueStorageKey", queryCatalogueStorageKey,
+                    "chapterIndex", chapterIndexStr,
+                    "networkNovelInfoPageKey", networkNovelInfoPageKey,
+                    "downloaderMark", downloaderMark));
         }
         if (!chapterIndexStr.matches(Constant.Regex.NATURE_NUMBER)) {
-            return ViewUtil.goError(model, "网络小说章节出问题啦", "queryCatalogueStorageKey="
-                                                                   + queryCatalogueStorageKey
-                                                                   + ", chapterIndex=" + chapterIndexStr
-                                                                   + ", networkNovelInfoPageKey="
-                                                                   + networkNovelInfoPageKey
-                                                                   + ", downloaderMark=" + downloaderMark);
+            return ViewUtil.goError(model, "网络小说章节出问题啦", KeyValuePair.ofList(
+                    "queryNetworkNovelStorageKey", queryNetworkNovelStorageKey,
+                    "novelStorageKey", novelStorageKey, "novelPageKey", novelPageKey,
+                    "queryCatalogueStorageKey", queryCatalogueStorageKey,
+                    "chapterIndex", chapterIndexStr,
+                    "networkNovelInfoPageKey", networkNovelInfoPageKey,
+                    "downloaderMark", downloaderMark));
         }
         int chapterIndex = Integer.parseInt(chapterIndexStr);
-        NetworkNovelChapter chapter = findNovelChapterFromMemoryStorage(queryCatalogueStorageKey, chapterIndex);
-        if (chapter == null) {
-            return ViewUtil.goError(model, "网络小说章节出问题啦", "queryCatalogueStorageKey="
-                                                                   + queryCatalogueStorageKey
-                                                                   + ", chapterIndex=" + chapterIndexStr
-                                                                   + ", networkNovelInfoPageKey="
-                                                                   + networkNovelInfoPageKey
-                                                                   + ", downloaderMark=" + downloaderMark);
+        NetworkNovelAroundChapter aroundChapter = findStorageNovelAroundChapter(queryCatalogueStorageKey,
+                chapterIndex);
+        if (aroundChapter == null) {
+            return ViewUtil.goError(model, "网络小说章节出问题啦", KeyValuePair.ofList(
+                    "queryNetworkNovelStorageKey", queryNetworkNovelStorageKey,
+                    "novelStorageKey", novelStorageKey, "novelPageKey", novelPageKey,
+                    "queryCatalogueStorageKey", queryCatalogueStorageKey,
+                    "chapterIndex", chapterIndexStr,
+                    "networkNovelInfoPageKey", networkNovelInfoPageKey,
+                    "downloaderMark", downloaderMark));
         }
-        model.addAttribute("chapter", chapter);
-        Wrapper<NetworkNovelContent> contentWrapper = novelNetworkService.findContent(chapter.getName(),
-                chapter.getUrl(), downloaderMark);
+        model.addAttribute("aroundChapter", aroundChapter);
+        Wrapper<NetworkNovelContent> contentWrapper = novelNetworkService.findContent(
+                aroundChapter.getChapter().getName(), aroundChapter.getChapter().getUrl(), downloaderMark);
         model.addAttribute("content", WrapMapper.isOk(contentWrapper) ? contentWrapper.data() : null);
+        model.addAttribute("downloaderMark", downloaderMark);
+        model.addAttribute("queryNetworkNovelStorageKey", queryNetworkNovelStorageKey);
+        model.addAttribute("queryCatalogueStorageKey", queryCatalogueStorageKey);
+        model.addAttribute("novelStorageKey", queryCatalogueStorageKey);
+        model.addAttribute("novelPageKey", queryCatalogueStorageKey);
         model.addAttribute("networkNovelInfoPageKey", networkNovelInfoPageKey);
         return "novel/network/network_novel_content";
     }
 
-    private NetworkNovelInfo findNovelInfoFromMemoryStorage(String queryNetworkNovelStorageKey,
-                                                            String novelStorageKey) {
+    private NetworkNovelInfo findStorageNovelInfo(String queryNetworkNovelStorageKey,
+                                                  String novelStorageKey) {
         Map<String, QueryNetworkNovelInfo> queryStorageValue =
                 MemoryStorage.get(queryNetworkNovelStorageKey, new TypeReference<>() {
                 });
@@ -211,12 +212,20 @@ public class NovelView {
         return null;
     }
 
-    private NetworkNovelChapter findNovelChapterFromMemoryStorage(String queryCatalogueStorageKey, int chapterIndex) {
+    private NetworkNovelAroundChapter findStorageNovelAroundChapter(String queryCatalogueStorageKey, int chapterIndex) {
         List<NetworkNovelChapter> chapterList = MemoryStorage.get(queryCatalogueStorageKey, new TypeReference<>() {
         });
         if (chapterList == null || chapterList.isEmpty() || chapterIndex > chapterList.size() - 1) {
             return null;
         }
-        return chapterList.get(chapterIndex);
+        NetworkNovelAroundChapter aroundChapter = new NetworkNovelAroundChapter()
+                .setChapter(chapterList.get(chapterIndex));
+        if (chapterIndex - 1 >= 0) {
+            aroundChapter.setPreChapter(chapterList.get(chapterIndex - 1));
+        }
+        if (chapterIndex + 1 <= chapterList.size() - 1) {
+            aroundChapter.setNextChapter(chapterList.get(chapterIndex + 1));
+        }
+        return aroundChapter;
     }
 }

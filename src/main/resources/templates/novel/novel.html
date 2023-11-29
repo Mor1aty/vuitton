@@ -18,7 +18,7 @@
     <div class="aui-title">Vuitton 小说</div>
     <a class="aui-pull-right aui-btn aui-btn-outlined">
         <span class="aui-iconfont aui-icon-date"
-              onclick="goTest()"></span>
+              onclick=""></span>
     </a>
 </header>
 <div class="aui-tab" id="tab">
@@ -33,7 +33,8 @@
     <div class="aui-searchbar" id="localSearch">
         <div class="aui-searchbar-input aui-border-radius">
             <i class="aui-iconfont aui-icon-search"></i>
-            <input type="search" placeholder="请输入搜索内容" id="localSearchInput" th:value="${localSearchText}">
+            <label for="localSearchInput"></label><input type="search" placeholder="请输入搜索内容"
+                                                         id="localSearchInput" th:value="${localSearchText}">
             <div class="aui-searchbar-clear-btn" id="localSearchClearBtn">
                 <i class="aui-iconfont aui-icon-close"></i>
             </div>
@@ -52,7 +53,8 @@
     <div class="aui-searchbar" id="networkSearch">
         <div class="aui-searchbar-input aui-border-radius">
             <i class="aui-iconfont aui-icon-search"></i>
-            <input type="search" placeholder="请输入搜索内容" id="networkSearchInput" th:value="${networkSearchText}">
+            <label for="networkSearchInput"></label><input type="search" placeholder="请输入搜索内容"
+                                                           id="networkSearchInput" th:value="${networkSearchText}">
             <div class="aui-searchbar-clear-btn" id="networkSearchClearBtn">
                 <i class="aui-iconfont aui-icon-close"></i>
             </div>
@@ -104,14 +106,6 @@
 </body>
 <script src="/static/aui/aui-tab.js"></script>
 <script th:inline="javascript">
-
-    // Test
-    function goTest() {
-        window.location.href = "novel/network_novel_info?queryNetworkNovelStorageKey=testQueryNetworkNovelStorageKey"
-            + "&novelStorageKey=testNovelStorageKey"
-            + "&novelPageKey=testNovelPageKey"
-            + "&queryCatalogueStorageKey=testQueryCatalogueStorageKey"
-    }
 
     const localNovelTabIndex = "1";
     const networkNovelTabIndex = "2";

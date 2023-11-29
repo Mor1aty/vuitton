@@ -1,6 +1,7 @@
 package com.moriaty.vuitton.view;
 
 import com.moriaty.vuitton.ServerInfo;
+import com.moriaty.vuitton.bean.KeyValuePair;
 import com.moriaty.vuitton.bean.video.VideoAroundEpisode;
 import com.moriaty.vuitton.bean.video.VideoViewHistoryInfo;
 import com.moriaty.vuitton.constant.Constant;
@@ -59,14 +60,19 @@ public class VideoView {
     @RequestMapping("video_info")
     public String videoInfo(Model model, @RequestParam("videoId") String videoId,
                             @RequestParam(value = "searchText", required = false) String searchText) {
+        if (ViewUtil.checkIllegalParam(videoId)) {
+            return ViewUtil.goParamError(model, KeyValuePair.of("videoId", videoId));
+        }
         Wrapper<List<Video>> videoWrapper = videoService.findVideo(videoId, null);
         if (!WrapMapper.isOk(videoWrapper) || videoWrapper.data().size() != 1) {
-            return ViewUtil.goError(model, "视频信息出问题啦", "videoWrapper=" + videoWrapper);
+            return ViewUtil.goError(model, "视频信息出问题啦", KeyValuePair.of(
+                    "videoWrapper", String.valueOf(videoWrapper)));
         }
         Wrapper<List<VideoEpisode>> episodeMapper = videoService.findVideoEpisode(videoId);
         if (!WrapMapper.isOk(episodeMapper)) {
-            return ViewUtil.goError(model, "视频剧集出问题啦", "videoWrapper=" + videoWrapper
-                                                      + " episodeMapper=" + episodeMapper);
+            return ViewUtil.goError(model, "视频剧集出问题啦", KeyValuePair.ofList(
+                    "videoWrapper", String.valueOf(videoWrapper),
+                    "episodeMapper", String.valueOf(episodeMapper)));
         }
         model.addAttribute("videoInfo", videoWrapper.data().get(0));
         model.addAttribute("episodeList", episodeMapper.data());
@@ -83,21 +89,22 @@ public class VideoView {
     @RequestMapping("video_play")
     public String videoPlay(Model model, @RequestParam("videoId") String videoId,
                             @RequestParam("episodeIndex") String episodeIndexStr) {
-        if (!episodeIndexStr.matches(Constant.Regex.POSITIVE_INTEGER)) {
-            return ViewUtil.goError(model, "视频参数出问题啦", "videoId=" + videoId
-                                                      + " episodeIndex=" + episodeIndexStr);
+        if (ViewUtil.checkIllegalParam(List.of(videoId, episodeIndexStr),
+                () -> !episodeIndexStr.matches(Constant.Regex.POSITIVE_INTEGER))) {
+            return ViewUtil.goParamError(model, KeyValuePair.ofList(
+                    "videoId", videoId, "episodeIndex", episodeIndexStr));
         }
         int episodeIndex = Integer.parseInt(episodeIndexStr);
         Wrapper<VideoAroundEpisode> aroundEpisodeWrapper = videoService.findVideoAroundEpisode(videoId, episodeIndex);
         if (!WrapMapper.isOk(aroundEpisodeWrapper)) {
-            return ViewUtil.goError(model, "视频播放出问题啦", "videoId=" + videoId
-                                                      + " episodeIndex=" + episodeIndexStr
-                                                      + " aroundEpisodeWrapper=" + aroundEpisodeWrapper);
+            return ViewUtil.goError(model, "视频播放出问题啦", KeyValuePair.ofList(
+                    "videoId", videoId, "episodeIndex", episodeIndexStr,
+                    "aroundEpisodeWrapper", String.valueOf(aroundEpisodeWrapper)));
         }
         Wrapper<Void> insertWrapper = videoService.insertVideoViewHistory(videoId, episodeIndex);
         if (!WrapMapper.isOk(insertWrapper)) {
-            return ViewUtil.goError(model, "插入观看记录出问题啦", "videoId=" + videoId
-                                                          + " episodeIndex=" + episodeIndexStr);
+            return ViewUtil.goError(model, "插入观看记录出问题啦", KeyValuePair.ofList(
+                    "videoId", videoId, "episodeIndex", episodeIndexStr));
         }
         model.addAttribute("aroundEpisode", aroundEpisodeWrapper.data());
         model.addAttribute("fileServerUrl", ServerInfo.BASE_INFO.getFileServerUrl());
@@ -110,7 +117,8 @@ public class VideoView {
                                    @RequestParam(value = "searchText", required = false) String searchText) {
         Wrapper<List<VideoViewHistoryInfo>> historyWrapper = videoService.findVideViewHistory(videoId);
         if (!WrapMapper.isOk(historyWrapper)) {
-            return ViewUtil.goError(model, "观看记录出问题啦", "");
+            return ViewUtil.goError(model, "观看记录出问题啦",
+                    KeyValuePair.of("historyWrapper", String.valueOf(historyWrapper)));
         }
         model.addAttribute("viewHistoryList", historyWrapper.data());
         model.addAttribute("fileServerUrl", ServerInfo.BASE_INFO.getFileServerUrl());
@@ -127,6 +135,9 @@ public class VideoView {
     public String actionAddVideo(Model model, @RequestParam("name") String name,
                                  @RequestParam(value = "coverImg", required = false) String coverImg,
                                  @RequestParam(value = "description", required = false) String description) {
+        if (ViewUtil.checkIllegalParam(name)) {
+            return ViewUtil.goParamError(model, KeyValuePair.of("name", name));
+        }
         Wrapper<Void> enterVideoWrapper = videoService.enterVideo(name, coverImg, description);
         model.addAttribute("actionMsg", WrapMapper.isOk(enterVideoWrapper) ? "新增视频成功" : "新增视频失败");
         model.addAttribute("backUrl", "/video");

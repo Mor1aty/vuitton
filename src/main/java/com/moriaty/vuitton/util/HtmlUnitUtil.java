@@ -6,6 +6,7 @@ import com.gargoylesoftware.htmlunit.ScriptException;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.javascript.DefaultJavaScriptErrorListener;
+import com.moriaty.vuitton.constant.Constant;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,6 +31,8 @@ public class HtmlUnitUtil {
             webClient.getOptions().setActiveXNative(false);
             webClient.getOptions().setCssEnabled(true);
             webClient.getOptions().setJavaScriptEnabled(true);
+            webClient.getOptions().setTimeout(Constant.Network.CONNECT_TIMEOUT);
+            webClient.setJavaScriptTimeout(Constant.Network.CONNECT_TIMEOUT);
             webClient.setAjaxController(new NicelyResynchronizingAjaxController());
             webClient.setJavaScriptErrorListener(new IgnoreJavaScriptError());
             return webClient.getPage(url);

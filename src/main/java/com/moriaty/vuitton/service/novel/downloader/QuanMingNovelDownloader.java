@@ -8,6 +8,7 @@ import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelInfo;
 import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
+import com.moriaty.vuitton.constant.Constant;
 import com.moriaty.vuitton.util.HtmlUnitUtil;
 import com.moriaty.vuitton.util.UuidUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -111,7 +112,10 @@ public class QuanMingNovelDownloader implements NovelDownloader {
     public List<NetworkNovelChapter> findChapterList(String catalogueAppend) {
         try {
             List<NetworkNovelChapter> chapterList = new ArrayList<>();
-            Document doc = Jsoup.connect(info.getWebsite() + catalogueAppend).timeout(5000).get();
+            Document doc = Jsoup.connect(info.getWebsite() + catalogueAppend)
+                    .timeout(Constant.Network.CONNECT_TIMEOUT)
+                    .headers(Constant.Network.CHROME_HEADERS)
+                    .get();
             Element list = doc.getElementsByClass("listmain").get(0);
             Elements ddList = list.getElementsByTag("dd");
             for (int i = 0; i < ddList.size(); i++) {
@@ -136,8 +140,11 @@ public class QuanMingNovelDownloader implements NovelDownloader {
     @Override
     public NetworkNovelContent findContent(String chapterName, String contentAppend) {
         try {
-            Document doc = Jsoup.connect(info.getContentBaseUrl() + contentAppend).timeout(300000)
-                    .ignoreHttpErrors(true).get();
+            Document doc = Jsoup.connect(info.getContentBaseUrl() + contentAppend)
+                    .timeout(Constant.Network.CONNECT_TIMEOUT)
+                    .headers(Constant.Network.CHROME_HEADERS)
+                    .ignoreHttpErrors(true)
+                    .get();
             Element content = doc.getElementById("chaptercontent");
             if (content == null) {
                 return new NetworkNovelContent()
@@ -146,7 +153,7 @@ public class QuanMingNovelDownloader implements NovelDownloader {
             return new NetworkNovelContent()
                     .setTitle(chapterName)
                     .setContent(handleContent(content.text()))
-                    .setContentHtml(content.html());
+                    .setContentHtml(handleContent(content.html()));
         } catch (IOException e) {
             log.error("find content exception occur", e);
             return new NetworkNovelContent()
@@ -158,8 +165,10 @@ public class QuanMingNovelDownloader implements NovelDownloader {
     public String handleContent(String content) {
         String space = "\s\s\s\s";
         return content
-                .replace("请收藏本站：https://www.1q1m.com。全民小说网手机版：https://m.1q1m.com 『点此报错』『加入书签』",
+                .replace("请收藏本站：https://www.1q1m.com。全民小说网手机版：https://m.1q1m.com ",
                         "")
+                .replace("『加入书签』", "")
+                .replace("『点此报错』", "")
                 .replace(space, "\n");
 
     }

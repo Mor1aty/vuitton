@@ -3,6 +3,7 @@ package com.moriaty.vuitton.service.novel.downloader;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
 import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
+import com.moriaty.vuitton.constant.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -52,7 +53,10 @@ public class BiQuGeNovelDownloader implements NovelDownloader {
     public List<NetworkNovelChapter> findChapterList(String catalogueAppend) {
         try {
             List<NetworkNovelChapter> chapterList = new ArrayList<>();
-            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + catalogueAppend).timeout(5000).get();
+            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + catalogueAppend)
+                    .timeout(Constant.Network.CONNECT_TIMEOUT)
+                    .headers(Constant.Network.CHROME_HEADERS)
+                    .get();
             Element list = doc.getElementsByClass("article_texttitleb").get(0);
             Elements liList = list.getElementsByTag("li");
             for (int i = 0; i < liList.size(); i++) {

@@ -3,6 +3,7 @@ package com.moriaty.vuitton.service.novel.downloader;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
 import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
+import com.moriaty.vuitton.constant.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -52,7 +53,10 @@ public class TwoBiQuNovelDownloader implements NovelDownloader {
     public List<NetworkNovelChapter> findChapterList(String catalogueAppend) {
         try {
             List<NetworkNovelChapter> chapterList = new ArrayList<>();
-            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + catalogueAppend).timeout(5000).get();
+            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + catalogueAppend)
+                    .timeout(Constant.Network.CONNECT_TIMEOUT)
+                    .headers(Constant.Network.CHROME_HEADERS)
+                    .get();
             Element list = doc.getElementById("section-list");
             if (list == null) {
                 log.error("find chapter list page error, section-list is not found");
@@ -79,9 +83,10 @@ public class TwoBiQuNovelDownloader implements NovelDownloader {
     public NetworkNovelContent findContent(String chapterName, String contentAppend) {
         try {
             log.info("下载 {} {}", chapterName, info.getContentBaseUrl() + contentAppend);
-            Document doc = Jsoup.connect(info.getContentBaseUrl() + contentAppend).timeout(300000)
-                    .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-                                          "(KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36").get();
+            Document doc = Jsoup.connect(info.getContentBaseUrl() + contentAppend)
+                    .timeout(Constant.Network.CONNECT_TIMEOUT)
+                    .headers(Constant.Network.CHROME_HEADERS)
+                    .get();
             Element content = doc.getElementById("content");
             if (content == null) {
                 return new NetworkNovelContent()

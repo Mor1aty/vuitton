@@ -12,20 +12,71 @@
 </head>
 <body>
 <header class="aui-bar aui-bar-nav">
-    <a class="aui-pull-left aui-btn" th:href="'/novel/network_novel_info?'+
-    'queryNetworkNovelStorageKey=testQueryNetworkNovelStorageKey'
-    +'&novelStorageKey=novelStorageKey'
-    +'&novelPageKey=novelPageKey'
-    +'&queryCatalogueStorageKey=testQueryCatalogueStorageKey'
-    +'&networkNovelInfoPageKey=networkNovelInfoPageKey'">
+    <a class="aui-pull-left aui-btn" id="back">
         <span class="aui-iconfont aui-icon-left"></span>返回
     </a>
     <div class="aui-title">Vuitton 网络小说</div>
 </header>
 <section class="aui-content" style="margin: 0.5rem">
-    <div th:text="${networkNovelInfoPageKey}"></div>
-    <div th:text="${chapter}"></div>
-    <div th:text="${content}"></div>
+    <div class="aui-card-list">
+        <div class="aui-card-list-header"
+             th:text="'第'+${aroundChapter.chapter.index+1}+'章 '+${aroundChapter.chapter.name}"></div>
+        <div class="aui-card-list-content">
+            <div class="aui-card-list-footer">
+                <div>
+                    <div class="aui-list-item-title aui-text-primary"
+                         th:if="${aroundChapter.preChapter != null}"
+                         th:onclick="|goAnotherNetworkNovelContent(${aroundChapter.preChapter.index})|">
+                        上一章
+                    </div>
+                </div>
+                <div>
+                    <div class="aui-list-item-title aui-text-primary"
+                         th:if="${aroundChapter.nextChapter != null}"
+                         th:onclick="|goAnotherNetworkNovelContent(${aroundChapter.nextChapter.index})|">
+                        下一章
+                    </div>
+                </div>
+            </div>
+            <div id="networkNovelContent"></div>
+        </div>
+        <div class="aui-card-list-footer">
+            <div>
+                <div class="aui-list-item-title aui-text-primary"
+                     th:if="${aroundChapter.preChapter != null}"
+                     th:onclick="|goAnotherNetworkNovelContent(${aroundChapter.preChapter.index})|">
+                    上一章
+                </div>
+            </div>
+            <div>
+                <div class="aui-list-item-title aui-text-primary"
+                     th:if="${aroundChapter.nextChapter != null}"
+                     th:onclick="|goAnotherNetworkNovelContent(${aroundChapter.nextChapter.index})|">
+                    下一章
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 </body>
+<script th:inline="javascript">
+    function goAnotherNetworkNovelContent(chapterIndex) {
+        window.location.href = "network_novel_content?" +
+            "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
+            + "&novelStorageKey=" + [[${novelStorageKey}]]
+            + "&novelPageKey=" + [[${novelPageKey}]]
+            + "&queryCatalogueStorageKey=" + [[${queryCatalogueStorageKey}]]
+            + "&chapterIndex=" + chapterIndex
+            + "&networkNovelInfoPageKey=" + [[${networkNovelInfoPageKey}]]
+            + "&downloaderMark=" + [[${downloaderMark}]]
+    }
+
+    document.getElementById("networkNovelContent").innerHTML = [[${content.contentHtml}]]
+    document.getElementById("back").href = "network_novel_info?"
+        + "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
+        + "&novelStorageKey=" + [[${novelStorageKey}]]
+        + "&novelPageKey=" + [[${novelPageKey}]]
+        + "&queryCatalogueStorageKey=" + [[${queryCatalogueStorageKey}]]
+        + "&networkNovelInfoPageKey=" + [[${networkNovelInfoPageKey}]]
+</script>
 </html>
