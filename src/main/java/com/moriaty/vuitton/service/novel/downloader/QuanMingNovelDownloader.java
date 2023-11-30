@@ -155,7 +155,6 @@ public class QuanMingNovelDownloader implements NovelDownloader {
                     .setContent(handleContent(content.text()))
                     .setContentHtml(handleContent(content.html()));
         } catch (IOException e) {
-            log.error("find content exception occur", e);
             return new NetworkNovelContent()
                     .setErrorMsg("获取小说内容发生异常, " + e.getLocalizedMessage());
         }

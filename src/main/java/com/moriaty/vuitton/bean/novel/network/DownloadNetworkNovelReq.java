@@ -15,8 +15,14 @@ public class DownloadNetworkNovelReq {
 
     private String downloaderMark;
 
-    private String chapterUrl;
-
     private String novelName;
+
+    private String novelAuthor;
+
+    private String novelIntro;
+
+    private String novelImgUrl;
+
+    private String novelChapterUrl;
 
 }

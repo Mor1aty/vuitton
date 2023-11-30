@@ -37,7 +37,12 @@ public class NovelNetworkCtrl {
     @PostMapping("downloadNetworkNovel")
     public Wrapper<String> downloadNetworkNovel(@RequestBody DownloadNetworkNovelReq req) {
         log.info("novel/downloadNetworkNovel, req: {}", req);
-        return novelNetworkService.downloadNovel(req);
+        return novelNetworkService.downloadNovel(req.getDownloaderMark(), new NetworkNovelInfo()
+                .setName(req.getNovelName())
+                .setAuthor(req.getNovelAuthor())
+                .setIntro(req.getNovelIntro())
+                .setImgUrl(req.getNovelImgUrl())
+                .setChapterUrl(req.getNovelChapterUrl()));
     }
 
     @PostMapping("findNetworkNovelCatalogue")

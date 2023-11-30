@@ -12,7 +12,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
 import java.net.*;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.*;
 
 /**
@@ -42,6 +49,7 @@ public class AfterStartup implements CommandLineRunner {
         loadModule();
         loadNovelDownloader();
         loadMemoryStorage();
+        loadNetworkSetting();
     }
 
     private void loadBaseInfo() {
@@ -116,5 +124,30 @@ public class AfterStartup implements CommandLineRunner {
 
     private void loadMemoryStorage() {
         MemoryStorage.initMemoryStorage();
+    }
+
+    private void loadNetworkSetting() {
+        try {
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, new X509TrustManager[]{new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                    // Do nothing
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                    // Do nothing
+                }
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+            }}, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            log.error("加载网络设置异常", e);
+        }
     }
 }

@@ -58,8 +58,10 @@ public class Constant {
 
         }
 
-        public static final int DOWNLOAD_STATUS_ASK = 1;
+        public static final String DOWNLOADING_STORAGE_KEY = "novelDownloadingList";
 
-        public static final int DOWNLOAD_STATUS_DO = 2;
+        public static final int DOWNLOAD_ACTION_ASK = 1;
+
+        public static final int DOWNLOAD_ACTION_DO = 2;
     }
 }

@@ -4,6 +4,10 @@ import com.moriaty.vuitton.bean.novel.network.*;
 import com.moriaty.vuitton.core.storage.MemoryStorage;
 import com.moriaty.vuitton.core.wrap.WrapMapper;
 import com.moriaty.vuitton.core.wrap.Wrapper;
+import com.moriaty.vuitton.dao.entity.Novel;
+import com.moriaty.vuitton.dao.entity.NovelChapter;
+import com.moriaty.vuitton.dao.mapper.NovelChapterMapper;
+import com.moriaty.vuitton.dao.mapper.NovelMapper;
 import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
 import com.moriaty.vuitton.util.UuidUtil;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +29,7 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * <p>
- * 小说 Service
+ * 网络小说 Service
  * </p>
  *
  * @author Moriaty
@@ -38,6 +42,10 @@ public class NovelNetworkService {
 
     @Value("${file-server.novel.location}")
     private String fsNovelFileLocation;
+
+    private final NovelMapper novelMapper;
+
+    private final NovelChapterMapper novelChapterMapper;
 
     public Wrapper<List<QueryNetworkNovelInfo>> queryNovel(String searchText, List<String> downloaderMarkList) {
         if (!StringUtils.hasText(searchText)) {
@@ -59,26 +67,27 @@ public class NovelNetworkService {
         return WrapMapper.ok(result);
     }
 
-
-    public Wrapper<String> downloadNovel(DownloadNetworkNovelReq req) {
-        if (!StringUtils.hasText(req.getDownloaderMark())) {
+    public Wrapper<String> downloadNovel(String downloaderMark, NetworkNovelInfo novelInfo) {
+        if (!StringUtils.hasText(downloaderMark)) {
             return WrapMapper.illegalParam("下载 mark 不能为空");
         }
-        if (!StringUtils.hasText(req.getChapterUrl())) {
+        if (!StringUtils.hasText(novelInfo.getChapterUrl())) {
             return WrapMapper.illegalParam("目录补充不能为空");
         }
-        if (!StringUtils.hasText(req.getNovelName())) {
+        if (!StringUtils.hasText(novelInfo.getName())) {
             return WrapMapper.illegalParam("小说名不能为空");
         }
-        NovelDownloader downloader = NovelFactory.getDownloader(req.getDownloaderMark());
+        NovelDownloader downloader = NovelFactory.getDownloader(downloaderMark);
         if (downloader == null) {
-            return WrapMapper.failure("小说下载器 " + req.getDownloaderMark() + " 不存在");
+            return WrapMapper.failure("小说下载器 " + downloaderMark + " 不存在");
         }
-        log.info("开始下载小说 {} [{}-{}-{}]", req.getNovelName(), downloader.getInfo().getWebName(),
+        log.info("开始下载小说 {} [{}-{}-{}]", novelInfo.getName(), downloader.getInfo().getWebName(),
                 downloader.getInfo().getMark(), downloader.getInfo().getWebsite());
-        List<NetworkNovelChapter> chapterList = downloader.findChapterList(req.getChapterUrl());
-        String file = fsNovelFileLocation + File.separator + req.getNovelName() + ".txt";
-
+        List<NetworkNovelChapter> chapterList = downloader.findChapterList(novelInfo.getChapterUrl());
+        if (chapterList.isEmpty()) {
+            return WrapMapper.failure("获取小说目录失败");
+        }
+        String file = fsNovelFileLocation + File.separator + novelInfo.getName() + "-" + UuidUtil.genId() + ".txt";
         try {
             // 使用虚拟线程下载
             Map<Integer, NetworkNovelContent> novelMap = HashMap.newHashMap(chapterList.size());
@@ -109,7 +118,8 @@ public class NovelNetworkService {
             log.info("错误章节: {}", errorNovelChapter.size());
             log.info("章节: {}", novelMap.size());
             handleDownloadResult(chapterList, novelMap, errorNovelChapter);
-            if (writeNovelToFile(req.getNovelName(), chapterList.size(), novelMap)) {
+            if (writeNovelToFile(novelInfo.getName(), chapterList.size(), novelMap, file)) {
+                writeNovelToDb(downloaderMark, novelInfo, novelMap, file);
                 return WrapMapper.ok(file);
             } else {
                 return WrapMapper.failure("小说写入文件失败");
@@ -133,8 +143,8 @@ public class NovelNetworkService {
         }
     }
 
-    private boolean writeNovelToFile(String novelName, int chapterNum, Map<Integer, NetworkNovelContent> novelMap) {
-        String file = fsNovelFileLocation + File.separator + novelName + ".txt";
+    private boolean writeNovelToFile(String novelName, int chapterNum,
+                                     Map<Integer, NetworkNovelContent> novelMap, String file) {
         try (FileWriter fileWriter = new FileWriter(file, true)) {
             fileWriter.write(novelName);
             fileWriter.write("\n\n");
@@ -164,6 +174,31 @@ public class NovelNetworkService {
             log.error("小说写入文件异常", e);
             return false;
         }
+    }
+
+    private void writeNovelToDb(String downloaderMark, NetworkNovelInfo novelInfo,
+                                Map<Integer, NetworkNovelContent> novelMap, String file) {
+        String novelId = UuidUtil.genId();
+        novelMapper.insert(new Novel()
+                .setId(novelId)
+                .setName(novelInfo.getName())
+                .setAuthor(novelInfo.getAuthor())
+                .setIntro(novelInfo.getIntro())
+                .setImgUrl(novelInfo.getImgUrl())
+                .setFilePath(file)
+                .setDownloaderMark(downloaderMark));
+        novelMap.forEach((index, novel) -> {
+            if (StringUtils.hasText(novel.getErrorMsg())) {
+                return;
+            }
+            novelChapterMapper.insert(new NovelChapter()
+                    .setId(UuidUtil.genId())
+                    .setNovel(novelId)
+                    .setChapterTitle(novel.getTitle())
+                    .setChapterIndex(index)
+                    .setContent(novel.getContent())
+                    .setContentHtml(novel.getContentHtml()));
+        });
     }
 
     public Wrapper<List<NetworkNovelChapter>> findCatalogue(String downloaderMark, String chapterUrl) {

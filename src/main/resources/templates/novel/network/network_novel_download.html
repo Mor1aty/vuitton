@@ -12,16 +12,128 @@
 </head>
 <body>
 <header class="aui-bar aui-bar-nav">
-    <a class="aui-pull-left aui-btn" id="back">
+    <a class="aui-pull-left aui-btn" href="/novel">
         <span class="aui-iconfont aui-icon-left"></span>返回
     </a>
     <div class="aui-title">Vuitton 小说下载</div>
 </header>
 <section class="aui-content" style="margin: 0.5rem">
-<div th:text="${downloadNovelName}"></div>
-<div th:text="${downloadChapterUrl}"></div>
-<div th:text="${downloaderMark}"></div>
-<div th:text="${downloadStatus}"></div>
+    <div class="aui-card-list" style="margin: 0.5rem" th:if="${askDownloadNovel != null}">
+        <div class="aui-card-list-header aui-text-primary">
+            下载
+        </div>
+        <div class="aui-card-list-content-padded">
+            <ul class="aui-list aui-media-list">
+                <li class="aui-list-item">
+                    <div class="aui-media-list-item-inner">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title aui-font-size-18"
+                                 th:text="${askDownloadNovel.name}"></div>
+                            <p class="aui-ellipsis-2" th:text="${askDownloadNovel.author}"></p>
+                            <p class="aui-ellipsis-2" th:text="${askDownloadNovel.intro}"></p>
+                        </div>
+                        <div class="aui-list-item-media" style="width: 3rem">
+                            <img th:src="${askDownloadNovel.imgUrl}" alt="无图片" src=""/>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="aui-card-list-footer">
+                <div>
+                    <div class="aui-list-item-title aui-text-primary"
+                         onclick="goNetworkNovelDownload(1)">
+                        取消
+                    </div>
+                </div>
+                <div>
+                    <div class="aui-list-item-title aui-text-primary"
+                         onclick="goNetworkNovelDownload(2)">
+                        下载
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="aui-card-list" style="margin: 0.5rem">
+        <div class="aui-card-list-header aui-text-primary">
+            正在下载
+        </div>
+        <div class="aui-card-list-content-padded">
+            <div th:if="${!#customUtil.listHasValue(downloadingNovelList)}">
+                无
+            </div>
+            <div th:if="${#customUtil.listHasValue(downloadingNovelList)}">
+                <ul class="aui-list aui-media-list">
+                    <li class="aui-list-item"
+                        th:each="novelInfo : ${downloadingNovelList}">
+                        <div class="aui-media-list-item-inner">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title aui-font-size-18"
+                                     th:text="${novelInfo.name}"></div>
+                                <p class="aui-ellipsis-2" th:text="${novelInfo.author}"></p>
+                                <p class="aui-ellipsis-2" th:text="${novelInfo.intro}"></p>
+                            </div>
+                            <div class="aui-list-item-media" style="width: 3rem">
+                                <img th:src="${novelInfo.imgUrl}" alt="无图片" src=""/>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="aui-card-list" style="margin: 0.5rem">
+        <div class="aui-card-list-header aui-text-primary">
+            已下载
+        </div>
+        <div class="aui-card-list-content-padded">
+            <div th:if="${!#customUtil.listHasValue(downloadedNovelList)}">
+                无
+            </div>
+            <div th:if="${#customUtil.listHasValue(downloadedNovelList)}">
+                <ul class="aui-list aui-media-list">
+                    <li class="aui-list-item"
+                        th:each="novelInfo : ${downloadedNovelList}">
+                        <div class="aui-media-list-item-inner">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title aui-font-size-18"
+                                     th:text="${novelInfo.name}"></div>
+                                <p class="aui-ellipsis-2" th:text="${novelInfo.author}"></p>
+                                <p class="aui-ellipsis-2" th:text="${novelInfo.intro}"></p>
+                            </div>
+                            <div class="aui-list-item-media" style="width: 3rem">
+                                <img th:src="${novelInfo.imgUrl}" alt="无图片" src=""/>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </section>
 </body>
+<script th:inline="javascript">
+    if ([[${downloadStart}]]) {
+        window.location.href = "network_novel_download"
+    }
+
+    function goNetworkNovelDownload(downloadAction) {
+        if (downloadAction === 1) {
+            window.location.href = "network_novel_download"
+        }
+        if (downloadAction === 2) {
+            const downloadNovel = [[${askDownloadNovel}]];
+            if (downloadNovel) {
+                window.location.href = "network_novel_download?"
+                    + "downloadStatus=2"
+                    + "&downloadNovelName=" + downloadNovel.name
+                    + "&downloadNovelAuthor=" + downloadNovel.author
+                    + "&downloadNovelIntro=" + downloadNovel.intro
+                    + "&downloadNovelImgUrl=" + downloadNovel.imgUrl
+                    + "&downloadNovelChapterUrl=" + downloadNovel.chapterUrl
+                    + "&downloaderMark=" + downloadNovel.downloaderMark
+            }
+        }
+    }
+</script>
 </html>

@@ -8,7 +8,9 @@ import com.moriaty.vuitton.core.module.Module;
 import com.moriaty.vuitton.core.storage.MemoryStorage;
 import com.moriaty.vuitton.core.wrap.WrapMapper;
 import com.moriaty.vuitton.core.wrap.Wrapper;
+import com.moriaty.vuitton.dao.entity.Novel;
 import com.moriaty.vuitton.service.novel.NovelFactory;
+import com.moriaty.vuitton.service.novel.NovelLocalService;
 import com.moriaty.vuitton.service.novel.NovelNetworkService;
 import com.moriaty.vuitton.util.UuidUtil;
 import com.moriaty.vuitton.util.ViewUtil;
@@ -43,6 +45,9 @@ import java.util.stream.Collectors;
 public class NovelView {
 
     private final NovelNetworkService novelNetworkService;
+
+    private final NovelLocalService novelLocalService;
+
 
     @RequestMapping
     public String novel(Model model,
@@ -243,16 +248,58 @@ public class NovelView {
     public String networkNovelDownload(Model model,
                                        @RequestParam(value = "downloadNovelName", required = false)
                                        String downloadNovelName,
-                                       @RequestParam(value = "downloadChapterUrl", required = false)
-                                       String downloadChapterUrl,
+                                       @RequestParam(value = "downloadNovelAuthor", required = false)
+                                       String downloadNovelAuthor,
+                                       @RequestParam(value = "downloadNovelIntro", required = false)
+                                       String downloadNovelIntro,
+                                       @RequestParam(value = "downloadNovelImgUrl", required = false)
+                                       String downloadNovelImgUrl,
+                                       @RequestParam(value = "downloadNovelChapterUrl", required = false)
+                                       String downloadNovelChapterUrl,
                                        @RequestParam(value = "downloaderMark", required = false)
                                        String downloaderMark,
                                        @RequestParam(value = "downloadStatus", required = false)
                                        String downloadStatusStr) {
-        model.addAttribute("downloadNovelName", downloadNovelName);
-        model.addAttribute("downloadChapterUrl", downloadChapterUrl);
-        model.addAttribute("downloaderMark", downloaderMark);
-        model.addAttribute("downloadStatus", downloadStatusStr);
+
+        if (StringUtils.hasText(downloadStatusStr)) {
+            if (!downloadStatusStr.matches(Constant.Regex.POSITIVE_INTEGER)) {
+                return ViewUtil.goParamError(model, KeyValuePair.of("downloadStatus", downloadStatusStr));
+            }
+            int downloadStatus = Integer.parseInt(downloadStatusStr);
+            if (downloadStatus == Constant.Novel.DOWNLOAD_ACTION_ASK) {
+                model.addAttribute("askDownloadNovel", new NetworkNovelInfo()
+                        .setName(downloadNovelName)
+                        .setAuthor(downloadNovelAuthor)
+                        .setIntro(downloadNovelIntro)
+                        .setImgUrl(downloadNovelImgUrl)
+                        .setChapterUrl(downloadNovelChapterUrl)
+                        .setDownloaderMark(downloaderMark));
+            }
+            if (downloadStatus == Constant.Novel.DOWNLOAD_ACTION_DO) {
+                NetworkNovelInfo novelInfo = new NetworkNovelInfo()
+                        .setName(downloadNovelName)
+                        .setAuthor(downloadNovelAuthor)
+                        .setIntro(downloadNovelIntro)
+                        .setImgUrl(downloadNovelImgUrl)
+                        .setChapterUrl(downloadNovelChapterUrl)
+                        .setDownloaderMark(downloaderMark);
+                String itemIndex = MemoryStorage.putList(Constant.Novel.DOWNLOADING_STORAGE_KEY, novelInfo);
+                Thread.ofVirtual().name("novelDownload-", 0)
+                        .start(() -> {
+                            novelNetworkService.downloadNovel(downloaderMark, novelInfo);
+                            MemoryStorage.removeListItem(Constant.Novel.DOWNLOADING_STORAGE_KEY, itemIndex);
+                        });
+                model.addAttribute("downloadStart", true);
+            }
+        }
+        List<NetworkNovelInfo> downloadingNovelList = MemoryStorage.getList(Constant.Novel.DOWNLOADING_STORAGE_KEY,
+                new TypeReference<>() {
+                });
+        model.addAttribute("downloadingNovelList", downloadingNovelList);
+
+        Wrapper<List<Novel>> downloadedNovelWrapper = novelLocalService.findNovel(null);
+        model.addAttribute("downloadedNovelList", WrapMapper.isOk(downloadedNovelWrapper) ?
+                downloadedNovelWrapper.data() : null);
         return "novel/network/network_novel_download";
     }
 }

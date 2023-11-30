@@ -100,7 +100,10 @@
     function goNetworkNovelDownload() {
         window.location.href = "network_novel_download?"
             + "downloadNovelName=" + [[${novelInfo.name}]]
-            + "&downloadChapterUrl=" + [[${novelInfo.chapterUrl}]]
+            + "&downloadNovelAuthor=" + [[${novelInfo.author}]]
+            + "&downloadNovelIntro=" + [[${novelInfo.intro}]]
+            + "&downloadNovelImgUrl=" + [[${novelInfo.imgUrl}]]
+            + "&downloadNovelChapterUrl=" + [[${novelInfo.chapterUrl}]]
             + "&downloaderMark=" + [[${novelInfo.downloaderMark}]]
             + "&downloadStatus=1"
     }

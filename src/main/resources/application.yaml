@@ -14,7 +14,7 @@ spring:
       static-locations: classpath:/static/
 logging:
   level:
-    com.moriaty.vuitton.dao.mapper: DEBUG
+    com.moriaty.vuitton.dao.mapper: INFO
 mybatis-plus:
   global-config:
     db-config:
