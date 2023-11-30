@@ -32,6 +32,11 @@ public class TestCtrl {
 
     private final VideoService videoService;
 
+    @GetMapping("hello")
+    public Wrapper<String> hello() {
+        return WrapMapper.ok("hello", "world");
+    }
+
     @GetMapping("enterVideo")
     public Wrapper<Void> enterVideo() {
         return videoService.enterVideo("大明王朝1566", null, null);

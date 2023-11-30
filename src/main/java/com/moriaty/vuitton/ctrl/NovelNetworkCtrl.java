@@ -1,6 +1,10 @@
 package com.moriaty.vuitton.ctrl;
 
 import com.moriaty.vuitton.bean.novel.network.*;
+import com.moriaty.vuitton.bean.novel.network.api.DownloadNetworkNovelReq;
+import com.moriaty.vuitton.bean.novel.network.api.FindNetworkNovelCatalogueReq;
+import com.moriaty.vuitton.bean.novel.network.api.FindNetworkNovelContentReq;
+import com.moriaty.vuitton.bean.novel.network.api.QueryNetworkNovelReq;
 import com.moriaty.vuitton.core.wrap.Wrapper;
 import com.moriaty.vuitton.service.novel.NovelNetworkService;
 import lombok.AllArgsConstructor;
@@ -30,7 +34,6 @@ public class NovelNetworkCtrl {
 
     @PostMapping("queryNovel")
     public Wrapper<List<QueryNetworkNovelInfo>> queryNovel(@RequestBody QueryNetworkNovelReq req) {
-        log.info("novel/queryNovel, req: {}", req);
         return novelNetworkService.queryNovel(req.getSearchText(), req.getDownloaderMarkList());
     }
 
@@ -47,13 +50,11 @@ public class NovelNetworkCtrl {
 
     @PostMapping("findNetworkNovelCatalogue")
     public Wrapper<List<NetworkNovelChapter>> findNetworkNovelCatalogue(@RequestBody FindNetworkNovelCatalogueReq req) {
-        log.info("novel/findNetworkNovelCatalogue, req: {}", req);
         return novelNetworkService.findCatalogue(req.getDownloaderMark(), req.getChapterUrl());
     }
 
     @PostMapping("findNetworkNovelContent")
     public Wrapper<NetworkNovelContent> findNetworkNovelContent(@RequestBody FindNetworkNovelContentReq req) {
-        log.info("novel/findNetworkNovelContent, req: {}", req);
         return novelNetworkService.findContent(req.getChapterName(), req.getChapterUrl(), req.getDownloaderMark());
     }
 }

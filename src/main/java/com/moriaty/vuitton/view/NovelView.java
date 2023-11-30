@@ -3,8 +3,9 @@ package com.moriaty.vuitton.view;
 import com.alibaba.fastjson2.TypeReference;
 import com.moriaty.vuitton.bean.KeyValuePair;
 import com.moriaty.vuitton.bean.novel.network.*;
-import com.moriaty.vuitton.constant.Constant;
 import com.moriaty.vuitton.core.module.Module;
+import com.moriaty.vuitton.constant.Constant;
+import com.moriaty.vuitton.core.log.ViewLog;
 import com.moriaty.vuitton.core.storage.MemoryStorage;
 import com.moriaty.vuitton.core.wrap.WrapMapper;
 import com.moriaty.vuitton.core.wrap.Wrapper;
@@ -12,10 +13,12 @@ import com.moriaty.vuitton.dao.entity.Novel;
 import com.moriaty.vuitton.service.novel.NovelFactory;
 import com.moriaty.vuitton.service.novel.NovelLocalService;
 import com.moriaty.vuitton.service.novel.NovelNetworkService;
+import com.moriaty.vuitton.core.module.ModuleFactory;
 import com.moriaty.vuitton.util.UuidUtil;
 import com.moriaty.vuitton.util.ViewUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -41,15 +44,22 @@ import java.util.stream.Collectors;
 @RequestMapping("novel")
 @AllArgsConstructor
 @Slf4j
-@Module(id = 0, name = "小说", path = "novel")
-public class NovelView {
+public class NovelView implements InitializingBean {
 
     private final NovelNetworkService novelNetworkService;
 
     private final NovelLocalService novelLocalService;
 
+    @Override
+    public void afterPropertiesSet() {
+        ModuleFactory.addModule(new Module()
+                .setId(0)
+                .setName("小说")
+                .setPath("novel"));
+    }
 
     @RequestMapping
+    @ViewLog
     public String novel(Model model,
                         @RequestParam(value = "localSearchText", required = false) String localSearchText,
                         @RequestParam(value = "networkSearchText", required = false) String networkSearchText,
@@ -96,6 +106,7 @@ public class NovelView {
     }
 
     @RequestMapping("network_novel_info")
+    @ViewLog
     public String networkNovelInfo(Model model,
                                    @RequestParam("queryNetworkNovelStorageKey") String queryNetworkNovelStorageKey,
                                    @RequestParam("novelStorageKey") String novelStorageKey,
@@ -175,6 +186,7 @@ public class NovelView {
     }
 
     @RequestMapping("network_novel_content")
+    @ViewLog
     public String networkNovelContent(Model model,
                                       @RequestParam("queryNetworkNovelStorageKey") String queryNetworkNovelStorageKey,
                                       @RequestParam("novelStorageKey") String novelStorageKey,
@@ -245,6 +257,7 @@ public class NovelView {
     }
 
     @RequestMapping("network_novel_download")
+    @ViewLog
     public String networkNovelDownload(Model model,
                                        @RequestParam(value = "downloadNovelName", required = false)
                                        String downloadNovelName,

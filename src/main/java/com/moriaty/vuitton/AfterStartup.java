@@ -1,10 +1,10 @@
 package com.moriaty.vuitton;
 
-import com.moriaty.vuitton.bean.view.Module;
+import com.moriaty.vuitton.core.module.Module;
 import com.moriaty.vuitton.core.storage.MemoryStorage;
 import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
 import com.moriaty.vuitton.service.novel.NovelFactory;
-import com.moriaty.vuitton.service.view.ModuleFactory;
+import com.moriaty.vuitton.core.module.ModuleFactory;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,23 +82,14 @@ public class AfterStartup implements CommandLineRunner {
     }
 
     private void loadModule() {
-        Map<String, Object> moduleBeanMap
-                = applicationContext.getBeansWithAnnotation(com.moriaty.vuitton.core.module.Module.class);
-        if (moduleBeanMap.isEmpty()) {
+        List<Module> moduleList = ModuleFactory.getAllModule();
+        if (moduleList.isEmpty()) {
             log.info("无可用模块");
         } else {
-            List<Module> moduleList = new ArrayList<>();
             StringBuilder sb = new StringBuilder();
-            for (Object moduleBean : moduleBeanMap.values()) {
-                com.moriaty.vuitton.core.module.Module module = moduleBean.getClass()
-                        .getAnnotation(com.moriaty.vuitton.core.module.Module.class);
-                moduleList.add(new Module()
-                        .setId(module.id())
-                        .setName(module.name())
-                        .setPath(module.path()));
-                sb.append(module.name()).append("(").append(module.path()).append(") ");
+            for (Module module : moduleList) {
+                sb.append(module.getName()).append("(").append(module.getPath()).append(") ");
             }
-            ModuleFactory.addModule(moduleList);
             log.info("可用的模块[{}]: {}", moduleList.size(), sb);
         }
     }

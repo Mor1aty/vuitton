@@ -7,8 +7,6 @@ spring:
   datasource:
     driver-class-name: org.sqlite.JDBC
     url: jdbc:sqlite:/home/moriaty/work/workspace/IDEA/vuitton/vuitton.db
-  mvc:
-    static-path-pattern: /static/**
   web:
     resources:
       static-locations: classpath:/static/

@@ -5,15 +5,18 @@ import com.moriaty.vuitton.bean.KeyValuePair;
 import com.moriaty.vuitton.bean.video.VideoAroundEpisode;
 import com.moriaty.vuitton.bean.video.VideoViewHistoryInfo;
 import com.moriaty.vuitton.constant.Constant;
+import com.moriaty.vuitton.core.log.ViewLog;
 import com.moriaty.vuitton.core.module.Module;
 import com.moriaty.vuitton.core.wrap.WrapMapper;
 import com.moriaty.vuitton.core.wrap.Wrapper;
 import com.moriaty.vuitton.dao.entity.Video;
 import com.moriaty.vuitton.dao.entity.VideoEpisode;
 import com.moriaty.vuitton.service.video.VideoService;
+import com.moriaty.vuitton.core.module.ModuleFactory;
 import com.moriaty.vuitton.util.ViewUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -36,12 +39,20 @@ import java.util.List;
 @RequestMapping("video")
 @AllArgsConstructor
 @Slf4j
-@Module(id = 1, name = "视频", path = "video")
-public class VideoView {
+public class VideoView implements InitializingBean {
 
     private final VideoService videoService;
 
+    @Override
+    public void afterPropertiesSet() {
+        ModuleFactory.addModule(new Module()
+                .setId(1)
+                .setName("视频")
+                .setPath("video"));
+    }
+
     @RequestMapping
+    @ViewLog
     public String video(Model model, @RequestParam(value = "searchText", required = false) String searchText) {
         Wrapper<List<Video>> videoWrapper = videoService.findVideo(null, searchText);
         model.addAttribute("videoList",
@@ -58,6 +69,7 @@ public class VideoView {
     }
 
     @RequestMapping("video_info")
+    @ViewLog
     public String videoInfo(Model model, @RequestParam("videoId") String videoId,
                             @RequestParam(value = "searchText", required = false) String searchText) {
         if (ViewUtil.checkIllegalParam(videoId)) {
@@ -87,6 +99,7 @@ public class VideoView {
     }
 
     @RequestMapping("video_play")
+    @ViewLog
     public String videoPlay(Model model, @RequestParam("videoId") String videoId,
                             @RequestParam("episodeIndex") String episodeIndexStr) {
         if (ViewUtil.checkIllegalParam(List.of(videoId, episodeIndexStr),
@@ -112,6 +125,7 @@ public class VideoView {
     }
 
     @RequestMapping("video_view_history")
+    @ViewLog
     public String videoViewHistory(Model model,
                                    @RequestParam(value = "videoId", required = false) String videoId,
                                    @RequestParam(value = "searchText", required = false) String searchText) {
@@ -127,11 +141,13 @@ public class VideoView {
     }
 
     @RequestMapping("video_add")
+    @ViewLog
     public String videoAdd() {
         return "video/video_add";
     }
 
     @RequestMapping("action_add_video")
+    @ViewLog
     public String actionAddVideo(Model model, @RequestParam("name") String name,
                                  @RequestParam(value = "coverImg", required = false) String coverImg,
                                  @RequestParam(value = "description", required = false) String description) {

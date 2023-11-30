@@ -1,28 +1,23 @@
 package com.moriaty.vuitton.core.module;
 
-import java.lang.annotation.*;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 模块注解
+ * 模块
  * </p>
  *
  * @author Moriaty
- * @since 2023/11/20 14:52
+ * @since 2023/11/20 14:47
  */
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface Module {
+@Data
+@Accessors(chain = true)
+public class Module {
 
-    /**
-     * id 从 0 开始
-     *
-     * @return int
-     */
-    int id();
+    private int id;
 
-    String name();
+    private String name;
 
-    String path();
+    private String path;
 }
