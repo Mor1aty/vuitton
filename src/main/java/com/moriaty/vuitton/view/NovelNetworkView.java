@@ -34,17 +34,17 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * 小说 Ctrl
+ * 网络小说 Ctrl
  * </p>
  *
  * @author Moriaty
  * @since 2023/11/28 下午3:43
  */
 @Controller
-@RequestMapping("novel")
+@RequestMapping("novel/network")
 @AllArgsConstructor
 @Slf4j
-public class NovelView implements InitializingBean {
+public class NovelNetworkView implements InitializingBean {
 
     private final NovelNetworkService novelNetworkService;
 
@@ -53,46 +53,35 @@ public class NovelView implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         ModuleFactory.addModule(new Module()
-                .setId(0)
-                .setName("小说")
-                .setPath("novel"));
+                .setId(2)
+                .setName("网络小说")
+                .setPath("novel/network"));
     }
 
     @RequestMapping
     @ViewLog
-    public String novel(Model model,
-                        @RequestParam(value = "localSearchText", required = false) String localSearchText,
-                        @RequestParam(value = "networkSearchText", required = false) String networkSearchText,
+    public String networkNovel(Model model,
+                        @RequestParam(value = "searchText", required = false) String searchText,
                         @RequestParam(value = "downloaderMark", required = false) List<String> downloaderMarkList,
                         @RequestParam(value = "tabIndex", required = false) String tabIndex,
-                        @RequestParam(value = "novelPageKey", required = false) String novelPageKey) {
-        if (ViewUtil.checkLoaded(model, novelPageKey)) {
-            return "novel/novel";
+                        @RequestParam(value = "networkNovelPageKey", required = false) String networkNovelPageKey) {
+        if (ViewUtil.checkLoaded(model, networkNovelPageKey)) {
+            return "novel/network/network_novel";
         }
         model.addAttribute("downloaderList", NovelFactory.getAllDownloaderInfo());
-        if (StringUtils.hasText(localSearchText)) {
-            model = handleLocalNovel(model, localSearchText);
+        if (StringUtils.hasText(searchText)) {
+            model = handleNetworkNovel(model, searchText, downloaderMarkList);
         }
-        if (StringUtils.hasText(networkSearchText)) {
-            model = handleNetworkNovel(model, networkSearchText, downloaderMarkList);
-        }
-        model.addAttribute("localSearchText", localSearchText);
-        model.addAttribute("networkSearchText", networkSearchText);
-        model.addAttribute("tabIndex", tabIndex);
+        model.addAttribute("searchText", searchText);
         model.addAttribute("downloaderMarkList", downloaderMarkList);
-        novelPageKey = "novelPageKey-" + UuidUtil.genId();
-        model.addAttribute("novelPageKey", novelPageKey);
-        MemoryStorage.putForever(novelPageKey, model.asMap());
-        return "novel/novel";
+        networkNovelPageKey = "networkNovelPageKey-" + UuidUtil.genId();
+        model.addAttribute("networkNovelPageKey", networkNovelPageKey);
+        MemoryStorage.putForever(networkNovelPageKey, model.asMap());
+        return "novel/network/network_novel";
     }
 
-    public Model handleLocalNovel(Model model, String localSearchText) {
-        log.info("{}", localSearchText);
-        return model;
-    }
-
-    public Model handleNetworkNovel(Model model, String networkSearchText, List<String> downloaderMarkList) {
-        Wrapper<List<QueryNetworkNovelInfo>> queryNovelWrapper = novelNetworkService.queryNovel(networkSearchText,
+    public Model handleNetworkNovel(Model model, String searchText, List<String> downloaderMarkList) {
+        Wrapper<List<QueryNetworkNovelInfo>> queryNovelWrapper = novelNetworkService.queryNovel(searchText,
                 downloaderMarkList != null && !downloaderMarkList.isEmpty() ? downloaderMarkList : List.of());
         if (WrapMapper.isOk(queryNovelWrapper)) {
             Map<String, QueryNetworkNovelInfo> searchResultMap = queryNovelWrapper.data().stream()
@@ -105,12 +94,12 @@ public class NovelView implements InitializingBean {
         return model;
     }
 
-    @RequestMapping("network_novel_info")
+    @RequestMapping("novel_info")
     @ViewLog
     public String networkNovelInfo(Model model,
                                    @RequestParam("queryNetworkNovelStorageKey") String queryNetworkNovelStorageKey,
-                                   @RequestParam("novelStorageKey") String novelStorageKey,
-                                   @RequestParam("novelPageKey") String novelPageKey,
+                                   @RequestParam("networkNovelStorageKey") String networkNovelStorageKey,
+                                   @RequestParam("networkNovelPageKey") String networkNovelPageKey,
                                    @RequestParam(value = "queryCatalogueStorageKey", required = false)
                                    String queryCatalogueStorageKey,
                                    @RequestParam(value = "networkNovelInfoPageKey", required = false)
@@ -118,19 +107,19 @@ public class NovelView implements InitializingBean {
         if (ViewUtil.checkLoaded(model, networkNovelInfoPageKey)) {
             return "novel/network/network_novel_info";
         }
-        if (ViewUtil.checkIllegalParam(queryNetworkNovelStorageKey, novelStorageKey, novelPageKey)) {
+        if (ViewUtil.checkIllegalParam(queryNetworkNovelStorageKey, networkNovelStorageKey, networkNovelPageKey)) {
             return ViewUtil.goError(model, "参数出问题啦", KeyValuePair.ofList(
                     "queryNetworkNovelStorageKey", queryNetworkNovelStorageKey,
-                    "novelStorageKey", novelStorageKey, "novelPageKey", novelPageKey,
+                    "networkNovelStorageKey", networkNovelStorageKey, "networkNovelPageKey", networkNovelPageKey,
                     "queryCatalogueStorageKey", queryCatalogueStorageKey,
                     "networkNovelInfoPageKey", networkNovelInfoPageKey));
         }
 
-        NetworkNovelInfo novelInfo = findStorageNovelInfo(queryNetworkNovelStorageKey, novelStorageKey);
+        NetworkNovelInfo novelInfo = findStorageNovelInfo(queryNetworkNovelStorageKey, networkNovelStorageKey);
         if (novelInfo == null) {
             return ViewUtil.goError(model, "网络小说信息出问题啦", KeyValuePair.ofList(
                     "queryNetworkNovelStorageKey", queryNetworkNovelStorageKey,
-                    "novelStorageKey", novelStorageKey, "novelPageKey", novelPageKey,
+                    "networkNovelStorageKey", networkNovelStorageKey, "networkNovelPageKey", networkNovelPageKey,
                     "queryCatalogueStorageKey", queryCatalogueStorageKey,
                     "networkNovelInfoPageKey", networkNovelInfoPageKey));
         }
@@ -155,9 +144,9 @@ public class NovelView implements InitializingBean {
             }
         }
         model.addAttribute("novelInfo", novelInfo);
-        model.addAttribute("novelPageKey", novelPageKey);
+        model.addAttribute("networkNovelPageKey", networkNovelPageKey);
         model.addAttribute("queryNetworkNovelStorageKey", queryNetworkNovelStorageKey);
-        model.addAttribute("novelStorageKey", novelStorageKey);
+        model.addAttribute("networkNovelStorageKey", networkNovelStorageKey);
         networkNovelInfoPageKey = "networkNovelInfoPageKey-" + UuidUtil.genId();
         model.addAttribute("networkNovelInfoPageKey", networkNovelInfoPageKey);
         MemoryStorage.putForever(networkNovelInfoPageKey, model.asMap());
@@ -185,21 +174,21 @@ public class NovelView implements InitializingBean {
         return null;
     }
 
-    @RequestMapping("network_novel_content")
+    @RequestMapping("novel_content")
     @ViewLog
     public String networkNovelContent(Model model,
                                       @RequestParam("queryNetworkNovelStorageKey") String queryNetworkNovelStorageKey,
-                                      @RequestParam("novelStorageKey") String novelStorageKey,
-                                      @RequestParam("novelPageKey") String novelPageKey,
+                                      @RequestParam("networkNovelStorageKey") String networkNovelStorageKey,
+                                      @RequestParam("networkNovelPageKey") String networkNovelPageKey,
                                       @RequestParam("queryCatalogueStorageKey") String queryCatalogueStorageKey,
                                       @RequestParam("chapterIndex") String chapterIndexStr,
                                       @RequestParam("networkNovelInfoPageKey") String networkNovelInfoPageKey,
                                       @RequestParam("downloaderMark") String downloaderMark) {
-        if (ViewUtil.checkIllegalParam(queryNetworkNovelStorageKey, novelStorageKey, novelPageKey,
+        if (ViewUtil.checkIllegalParam(queryNetworkNovelStorageKey, networkNovelStorageKey, networkNovelPageKey,
                 queryCatalogueStorageKey, chapterIndexStr, networkNovelInfoPageKey, downloaderMark)) {
             return ViewUtil.goError(model, "参数出问题啦", KeyValuePair.ofList(
                     "queryNetworkNovelStorageKey", queryNetworkNovelStorageKey,
-                    "novelStorageKey", novelStorageKey, "novelPageKey", novelPageKey,
+                    "networkNovelStorageKey", networkNovelStorageKey, "networkNovelPageKey", networkNovelPageKey,
                     "queryCatalogueStorageKey", queryCatalogueStorageKey,
                     "chapterIndex", chapterIndexStr,
                     "networkNovelInfoPageKey", networkNovelInfoPageKey,
@@ -208,7 +197,7 @@ public class NovelView implements InitializingBean {
         if (!chapterIndexStr.matches(Constant.Regex.NATURE_NUMBER)) {
             return ViewUtil.goError(model, "网络小说章节出问题啦", KeyValuePair.ofList(
                     "queryNetworkNovelStorageKey", queryNetworkNovelStorageKey,
-                    "novelStorageKey", novelStorageKey, "novelPageKey", novelPageKey,
+                    "networkNovelStorageKey", networkNovelStorageKey, "networkNovelPageKey", networkNovelPageKey,
                     "queryCatalogueStorageKey", queryCatalogueStorageKey,
                     "chapterIndex", chapterIndexStr,
                     "networkNovelInfoPageKey", networkNovelInfoPageKey,
@@ -220,7 +209,7 @@ public class NovelView implements InitializingBean {
         if (aroundChapter == null) {
             return ViewUtil.goError(model, "网络小说章节出问题啦", KeyValuePair.ofList(
                     "queryNetworkNovelStorageKey", queryNetworkNovelStorageKey,
-                    "novelStorageKey", novelStorageKey, "novelPageKey", novelPageKey,
+                    "networkNovelStorageKey", networkNovelStorageKey, "networkNovelPageKey", networkNovelPageKey,
                     "queryCatalogueStorageKey", queryCatalogueStorageKey,
                     "chapterIndex", chapterIndexStr,
                     "networkNovelInfoPageKey", networkNovelInfoPageKey,
@@ -233,8 +222,8 @@ public class NovelView implements InitializingBean {
         model.addAttribute("downloaderMark", downloaderMark);
         model.addAttribute("queryNetworkNovelStorageKey", queryNetworkNovelStorageKey);
         model.addAttribute("queryCatalogueStorageKey", queryCatalogueStorageKey);
-        model.addAttribute("novelStorageKey", novelStorageKey);
-        model.addAttribute("novelPageKey", novelPageKey);
+        model.addAttribute("networkNovelStorageKey", networkNovelStorageKey);
+        model.addAttribute("networkNovelPageKey", networkNovelPageKey);
         model.addAttribute("networkNovelInfoPageKey", networkNovelInfoPageKey);
         return "novel/network/network_novel_content";
     }
@@ -256,7 +245,7 @@ public class NovelView implements InitializingBean {
         return aroundChapter;
     }
 
-    @RequestMapping("network_novel_download")
+    @RequestMapping("novel_download")
     @ViewLog
     public String networkNovelDownload(Model model,
                                        @RequestParam(value = "downloadNovelName", required = false)

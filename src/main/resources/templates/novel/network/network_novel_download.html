@@ -13,10 +13,10 @@
 </head>
 <body>
 <header class="aui-bar aui-bar-nav">
-    <a class="aui-pull-left aui-btn" href="/novel">
+    <a class="aui-pull-left aui-btn" href="/novel/network">
         <span class="aui-iconfont aui-icon-left"></span>返回
     </a>
-    <div class="aui-title">Vuitton 小说下载</div>
+    <div class="aui-title">Vuitton 网络小说下载</div>
 </header>
 <section class="aui-content" style="margin: 0.5rem">
     <div class="aui-card-list" style="margin: 0.5rem" th:if="${askDownloadNovel != null}">
@@ -42,13 +42,13 @@
             <div class="aui-card-list-footer">
                 <div>
                     <div class="aui-list-item-title aui-text-primary"
-                         onclick="goNetworkNovelDownload(1)">
+                         onclick="goNovelDownload(1)">
                         取消
                     </div>
                 </div>
                 <div>
                     <div class="aui-list-item-title aui-text-primary"
-                         onclick="goNetworkNovelDownload(2)">
+                         onclick="goNovelDownload(2)">
                         下载
                     </div>
                 </div>
@@ -115,17 +115,17 @@
 </body>
 <script th:inline="javascript">
     if ([[${downloadStart}]]) {
-        window.location.href = "network_novel_download"
+        window.location.href = "novel_download"
     }
 
-    function goNetworkNovelDownload(downloadAction) {
+    function goNovelDownload(downloadAction) {
         if (downloadAction === 1) {
-            window.location.href = "network_novel_download"
+            window.location.href = "novel_download"
         }
         if (downloadAction === 2) {
             const downloadNovel = [[${askDownloadNovel}]];
             if (downloadNovel) {
-                window.location.href = "network_novel_download?"
+                window.location.href = "novel_download?"
                     + "downloadStatus=2"
                     + "&downloadNovelName=" + downloadNovel.name
                     + "&downloadNovelAuthor=" + downloadNovel.author

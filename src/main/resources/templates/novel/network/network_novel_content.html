@@ -27,32 +27,32 @@
                 <div>
                     <div class="aui-list-item-title aui-text-primary"
                          th:if="${aroundChapter.preChapter != null}"
-                         th:onclick="|goAnotherNetworkNovelContent(${aroundChapter.preChapter.index})|">
+                         th:onclick="|goAnotherNovelContent(${aroundChapter.preChapter.index})|">
                         上一章
                     </div>
                 </div>
                 <div>
                     <div class="aui-list-item-title aui-text-primary"
                          th:if="${aroundChapter.nextChapter != null}"
-                         th:onclick="|goAnotherNetworkNovelContent(${aroundChapter.nextChapter.index})|">
+                         th:onclick="|goAnotherNovelContent(${aroundChapter.nextChapter.index})|">
                         下一章
                     </div>
                 </div>
             </div>
-            <div id="networkNovelContent"></div>
+            <div id="novelContent"></div>
         </div>
         <div class="aui-card-list-footer">
             <div>
                 <div class="aui-list-item-title aui-text-primary"
                      th:if="${aroundChapter.preChapter != null}"
-                     th:onclick="|goAnotherNetworkNovelContent(${aroundChapter.preChapter.index})|">
+                     th:onclick="|goAnotherNovelContent(${aroundChapter.preChapter.index})|">
                     上一章
                 </div>
             </div>
             <div>
                 <div class="aui-list-item-title aui-text-primary"
                      th:if="${aroundChapter.nextChapter != null}"
-                     th:onclick="|goAnotherNetworkNovelContent(${aroundChapter.nextChapter.index})|">
+                     th:onclick="|goAnotherNovelContent(${aroundChapter.nextChapter.index})|">
                     下一章
                 </div>
             </div>
@@ -61,22 +61,22 @@
 </section>
 </body>
 <script th:inline="javascript">
-    function goAnotherNetworkNovelContent(chapterIndex) {
-        window.location.href = "network_novel_content?" +
+    function goAnotherNovelContent(chapterIndex) {
+        window.location.href = "novel_content?" +
             "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
-            + "&novelStorageKey=" + [[${novelStorageKey}]]
-            + "&novelPageKey=" + [[${novelPageKey}]]
+            + "&networkNovelStorageKey=" + [[${networkNovelStorageKey}]]
+            + "&networkNovelPageKey=" + [[${networkNovelPageKey}]]
             + "&queryCatalogueStorageKey=" + [[${queryCatalogueStorageKey}]]
             + "&chapterIndex=" + chapterIndex
             + "&networkNovelInfoPageKey=" + [[${networkNovelInfoPageKey}]]
             + "&downloaderMark=" + [[${downloaderMark}]]
     }
 
-    document.getElementById("networkNovelContent").innerHTML = [[${content.contentHtml}]]
-    document.getElementById("back").href = "network_novel_info?"
+    document.getElementById("novelContent").innerHTML = [[${content.contentHtml}]]
+    document.getElementById("back").href = "novel_info?"
         + "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
-        + "&novelStorageKey=" + [[${novelStorageKey}]]
-        + "&novelPageKey=" + [[${novelPageKey}]]
+        + "&networkNovelStorageKey=" + [[${networkNovelStorageKey}]]
+        + "&networkNovelPageKey=" + [[${networkNovelPageKey}]]
         + "&queryCatalogueStorageKey=" + [[${queryCatalogueStorageKey}]]
         + "&networkNovelInfoPageKey=" + [[${networkNovelInfoPageKey}]]
 </script>

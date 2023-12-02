@@ -1,6 +1,7 @@
 package com.moriaty.vuitton.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -24,9 +25,10 @@ public class NovelChapter {
 
     private String novel;
 
-    private Integer chapterIndex;
+    @TableField("`index`")
+    private Integer index;
 
-    private String chapterTitle;
+    private String name;
 
     private String content;
 

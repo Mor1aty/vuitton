@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuitton</title>
+    <meta
+            name="viewport"
+            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav">
+    <a class="aui-pull-left aui-btn" href="/index">
+        <span class="aui-iconfont aui-icon-left"></span>首页
+    </a>
+    <div class="aui-title">Vuitton 网络小说</div>
+    <a class="aui-pull-right aui-btn aui-btn-outlined">
+        <span class="aui-iconfont aui-icon-paper"
+              onclick="goNovelDownload()"></span>
+    </a>
+</header>
+<section class="aui-content">
+    <div class="aui-searchbar" id="search">
+        <div class="aui-searchbar-input aui-border-radius">
+            <i class="aui-iconfont aui-icon-search"></i>
+            <label for="searchInput"></label><input type="search" placeholder="请输入搜索内容"
+                                                    id="searchInput" th:value="${searchText}">
+            <div class="aui-searchbar-clear-btn" id="searchClearBtn">
+                <i class="aui-iconfont aui-icon-close"></i>
+            </div>
+        </div>
+        <div class="aui-searchbar-btn" id="searchBtn">取消</div>
+    </div>
+    <div class="aui-card-list" style="padding: 0.5rem">
+        <label th:each="downloader : ${downloaderList}">
+            <input class="aui-checkbox" type="checkbox" name="downloaderCheck"
+                   th:text="${downloader.webName}" th:value="${downloader.mark}"
+                   th:id="'downloader-'+${downloader.mark}">
+        </label>
+    </div>
+    <div class="aui-card-list" style="margin: 0.5rem" th:each="searchResult : ${searchResultMap}">
+        <div class="aui-card-list-header aui-text-primary"
+             th:text="${searchResult.value.sourceName}+'['+${searchResult.key}+']'">
+        </div>
+        <div class="aui-card-list-content-padded">
+            <div th:if="${#customUtil.stringHasText(searchResult.value.errorMsg)}"
+                 th:text="${searchResult.value.errorMsg}"></div>
+            <div th:if="${!#customUtil.stringHasText(searchResult.value.errorMsg)}">
+                <div th:if="${!#customUtil.listHasValue(searchResult.value.novelInfoList)}">
+                    无结果
+                </div>
+                <div th:if="${#customUtil.listHasValue(searchResult.value.novelInfoList)}">
+                    <ul class="aui-list aui-media-list">
+                        <li class="aui-list-item"
+                            th:each="novelInfo : ${searchResult.value.novelInfoList}"
+                            th:data="${novelInfo.storageKey}"
+                            th:onclick="|goNovelInfo(this.getAttribute('data'))|">
+                            <div class="aui-media-list-item-inner">
+                                <div class="aui-list-item-inner">
+                                    <div class="aui-list-item-title aui-font-size-18"
+                                         th:text="${novelInfo.name}"></div>
+                                    <p class="aui-ellipsis-2" th:text="${novelInfo.author}"></p>
+                                    <p class="aui-ellipsis-2" th:text="${novelInfo.intro}"></p>
+                                </div>
+                                <div class="aui-list-item-media" style="width: 3rem">
+                                    <img th:src="${novelInfo.imgUrl}" alt="无图片" src=""/>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+<script th:inline="javascript">
+    function genParam(paramList) {
+        let paramStr = "";
+        if (paramList && paramList.length > 0) {
+            paramStr += "?";
+            paramList.forEach(value => {
+                paramStr += value.name + "=" + value.value + "&";
+            })
+            paramStr = paramStr.substring(0, paramStr.length - 1);
+        }
+        return paramStr;
+    }
+
+    function goNovelDownload() {
+        window.location.href = "network/novel_download";
+    }
+
+    function goNovelInfo(networkNovelStorageKey) {
+        window.location.href = "network/novel_info?queryNetworkNovelStorageKey="
+            + [[${queryNetworkNovelStorageKey}]] + "&networkNovelStorageKey=" + networkNovelStorageKey
+            + "&networkNovelPageKey=" + [[${networkNovelPageKey}]]
+    }
+
+    const searchBar = document.getElementById("search");
+    const searchBarInput = document.getElementById("searchInput");
+    const searchBarBtn = document.getElementById("searchBtn");
+    const searchBarClearBtn = document.getElementById("searchClearBtn");
+    if (searchBar) {
+        searchBarBtn.style.marginRight = "0";
+        searchBarClearBtn.style.display = 'block';
+        searchBarBtn.classList.add("aui-text-info");
+        searchBarBtn.textContent = "搜索";
+    }
+    searchBarClearBtn.onclick = function () {
+        this.style.display = 'none';
+        searchBarInput.value = '';
+        searchBarBtn.classList.remove("aui-text-info");
+    }
+    searchBarBtn.onclick = function () {
+        const searchText = searchBarInput.value;
+        searchBarInput.blur();
+        const paramList = [];
+        paramList.push({
+            name: "tabIndex",
+            value: 2,
+        });
+        const downloaderCheckList = document.querySelectorAll("input[name='downloaderCheck']");
+        downloaderCheckList.forEach(value => {
+            if (value.checked) {
+                paramList.push({
+                    name: "downloaderMark",
+                    value: value.value,
+                });
+            }
+        })
+        if (searchText.length > 0) {
+            paramList.push({
+                name: "searchText",
+                value: searchText,
+            });
+        }
+        window.location.href = "network" + genParam(paramList);
+    }
+
+    const downloaderMarkList = [[${downloaderMarkList}]];
+    if (downloaderMarkList) {
+        downloaderMarkList.forEach(value => {
+            const downloaderInput = document.getElementById('downloader-' + value);
+            downloaderInput.checked = true;
+        });
+    } else {
+        const downloaderList = [[${downloaderList}]];
+        downloaderList.forEach(value => {
+            const downloaderInput = document.getElementById('downloader-' + value.mark);
+            downloaderInput.checked = true;
+        });
+    }
+</script>
+</html>

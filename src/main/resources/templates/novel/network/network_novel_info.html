@@ -32,13 +32,13 @@
 </head>
 <body>
 <header class="aui-bar aui-bar-nav">
-    <a class="aui-pull-left aui-btn" th:href="'/novel?novelPageKey='+${novelPageKey}">
+    <a class="aui-pull-left aui-btn" th:href="'/novel/network?networkNovelPageKey='+${networkNovelPageKey}">
         <span class="aui-iconfont aui-icon-left"></span>返回
     </a>
     <div class="aui-title">Vuitton 网络小说</div>
     <a class="aui-pull-right aui-btn aui-btn-outlined">
         <span class="aui-iconfont aui-icon-paper"
-              onclick="goNetworkNovelDownload()"></span>
+              onclick="goNovelDownload()"></span>
     </a>
 </header>
 <section class="aui-content" style="margin: 0.5rem">
@@ -74,7 +74,7 @@
                     ></div>
                     <div class="aui-timeline-item-inner">
                         <h2 th:text="${chapter.name}"
-                            th:onclick="|goNetworkNovelContent(${chapter.index})|"></h2>
+                            th:onclick="|goNovelContent(${chapter.index})|"></h2>
                     </div>
                 </div>
             </div>
@@ -87,19 +87,19 @@
 </body>
 <script th:inline="javascript">
 
-    function goNetworkNovelContent(chapterIndex) {
-        window.location.href = "network_novel_content?"
+    function goNovelContent(chapterIndex) {
+        window.location.href = "novel_content?"
             + "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
-            + "&novelStorageKey=" + [[${novelStorageKey}]]
-            + "&novelPageKey=" + [[${novelPageKey}]]
+            + "&networkNovelStorageKey=" + [[${networkNovelStorageKey}]]
+            + "&networkNovelPageKey=" + [[${networkNovelPageKey}]]
             + "&queryCatalogueStorageKey=" + [[${queryCatalogueStorageKey}]]
             + "&chapterIndex=" + chapterIndex
             + "&networkNovelInfoPageKey=" + [[${networkNovelInfoPageKey}]]
             + "&downloaderMark=" + [[${novelInfo.downloaderMark}]]
     }
 
-    function goNetworkNovelDownload() {
-        window.location.href = "network_novel_download?"
+    function goNovelDownload() {
+        window.location.href = "novel_download?"
             + "downloadNovelName=" + [[${novelInfo.name}]]
             + "&downloadNovelAuthor=" + [[${novelInfo.author}]]
             + "&downloadNovelIntro=" + [[${novelInfo.intro}]]

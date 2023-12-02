@@ -194,8 +194,8 @@ public class NovelNetworkService {
             novelChapterMapper.insert(new NovelChapter()
                     .setId(UuidUtil.genId())
                     .setNovel(novelId)
-                    .setChapterTitle(novel.getTitle())
-                    .setChapterIndex(index)
+                    .setName(novel.getTitle())
+                    .setIndex(index)
                     .setContent(novel.getContent())
                     .setContentHtml(novel.getContentHtml()));
         });

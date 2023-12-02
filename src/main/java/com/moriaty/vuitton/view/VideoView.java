@@ -46,7 +46,7 @@ public class VideoView implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         ModuleFactory.addModule(new Module()
-                .setId(1)
+                .setId(0)
                 .setName("视频")
                 .setPath("video"));
     }

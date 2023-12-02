@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuitton</title>
+    <meta
+            name="viewport"
+            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav">
+    <a class="aui-pull-left aui-btn" href="/index">
+        <span class="aui-iconfont aui-icon-left"></span>首页
+    </a>
+    <div class="aui-title">Vuitton 本地小说</div>
+</header>
+<section class="aui-content">
+    <div class="aui-searchbar" id="search">
+        <div class="aui-searchbar-input aui-border-radius">
+            <i class="aui-iconfont aui-icon-search"></i>
+            <label for="searchInput"></label><input type="search" placeholder="请输入搜索内容"
+                                                    id="searchInput" th:value="${searchText}">
+            <div class="aui-searchbar-clear-btn" id="searchClearBtn">
+                <i class="aui-iconfont aui-icon-close"></i>
+            </div>
+        </div>
+        <div class="aui-searchbar-btn" id="searchBtn">取消</div>
+    </div>
+    <div class="aui-card-list" style="margin: 0.5rem">
+        待开发
+        <div th:text="${searchText}"></div>
+    </div>
+</section>
+</body>
+<script th:inline="javascript">
+    const searchBar = document.getElementById("search");
+    const searchBarInput = document.getElementById("searchInput");
+    const searchBarBtn = document.getElementById("searchBtn");
+    const searchBarClearBtn = document.getElementById("searchClearBtn");
+    if (searchBar) {
+        searchBarBtn.style.marginRight = "0";
+        searchBarClearBtn.style.display = 'block';
+        searchBarBtn.classList.add("aui-text-info");
+        searchBarBtn.textContent = "搜索";
+    }
+    searchBarClearBtn.onclick = function () {
+        this.style.display = 'none';
+        searchBarInput.value = '';
+        searchBarBtn.classList.remove("aui-text-info");
+    }
+    searchBarBtn.onclick = function () {
+        const searchText = searchBarInput.value;
+        searchBarInput.blur();
+        if (searchText.length > 0) {
+            window.location.href = "local?searchText=" + searchText;
+        } else {
+            window.location.href = "local";
+        }
+    }
+</script>
+</html>
