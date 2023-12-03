@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuitton</title>
+    <meta
+            name="viewport"
+            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav">
+    <a class="aui-pull-left aui-btn" th:href="'/novel/local/novel_info?novelId='+${novelId}">
+        <span class="aui-iconfont aui-icon-left"></span>返回
+    </a>
+    <div class="aui-title">Vuitton 本地小说</div>
+</header>
+<section class="aui-content" style="margin: 0.5rem">
+    <div class="aui-card-list">
+        <div class="aui-card-list-header"
+             th:if="${aroundChapter.chapter != null}"
+             th:text="'第'+${aroundChapter.chapter.index+1}+'章 '+${aroundChapter.chapter.name}"></div>
+        <div class="aui-card-list-content">
+            <div class="aui-card-list-footer">
+                <div>
+                    <div class="aui-list-item-title aui-text-primary"
+                         th:if="${aroundChapter.preChapter != null}"
+                         th:onclick="|goAnotherNovelContent(${aroundChapter.preChapter.index})|">
+                        上一章
+                    </div>
+                </div>
+                <div>
+                    <div class="aui-list-item-title aui-text-primary"
+                         th:if="${aroundChapter.nextChapter != null}"
+                         th:onclick="|goAnotherNovelContent(${aroundChapter.nextChapter.index})|">
+                        下一章
+                    </div>
+                </div>
+            </div>
+            <div id="novelContent"></div>
+        </div>
+        <div class="aui-card-list-footer">
+            <div>
+                <div class="aui-list-item-title aui-text-primary"
+                     th:if="${aroundChapter.preChapter != null}"
+                     th:onclick="|goAnotherNovelContent(${aroundChapter.preChapter.index})|">
+                    上一章
+                </div>
+            </div>
+            <div>
+                <div class="aui-list-item-title aui-text-primary"
+                     th:if="${aroundChapter.nextChapter != null}"
+                     th:onclick="|goAnotherNovelContent(${aroundChapter.nextChapter.index})|">
+                    下一章
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+<script th:inline="javascript">
+
+    initNovelContent();
+
+    function goAnotherNovelContent(chapterIndex) {
+        window.location.href = "novel_content?"
+            + "novelId=" + [[${novelId}]]
+            + "&chapterIndex=" + chapterIndex
+    }
+
+    function initNovelContent() {
+        const chapter = [[${aroundChapter.chapter}]]
+        if (chapter) {
+            document.getElementById("novelContent").innerHTML = chapter.contentHtml
+        }
+    }
+</script>
+</html>

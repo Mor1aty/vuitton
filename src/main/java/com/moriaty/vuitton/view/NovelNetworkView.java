@@ -61,10 +61,10 @@ public class NovelNetworkView implements InitializingBean {
     @RequestMapping
     @ViewLog
     public String networkNovel(Model model,
-                        @RequestParam(value = "searchText", required = false) String searchText,
-                        @RequestParam(value = "downloaderMark", required = false) List<String> downloaderMarkList,
-                        @RequestParam(value = "tabIndex", required = false) String tabIndex,
-                        @RequestParam(value = "networkNovelPageKey", required = false) String networkNovelPageKey) {
+                               @RequestParam(value = "searchText", required = false) String searchText,
+                               @RequestParam(value = "downloaderMark", required = false) List<String> downloaderMarkList,
+                               @RequestParam(value = "tabIndex", required = false) String tabIndex,
+                               @RequestParam(value = "networkNovelPageKey", required = false) String networkNovelPageKey) {
         if (ViewUtil.checkLoaded(model, networkNovelPageKey)) {
             return "novel/network/network_novel";
         }
@@ -299,7 +299,7 @@ public class NovelNetworkView implements InitializingBean {
                 });
         model.addAttribute("downloadingNovelList", downloadingNovelList);
 
-        Wrapper<List<Novel>> downloadedNovelWrapper = novelLocalService.findNovel(null);
+        Wrapper<List<Novel>> downloadedNovelWrapper = novelLocalService.findNovel(null, null);
         model.addAttribute("downloadedNovelList", WrapMapper.isOk(downloadedNovelWrapper) ?
                 downloadedNovelWrapper.data() : null);
         return "novel/network/network_novel_download";

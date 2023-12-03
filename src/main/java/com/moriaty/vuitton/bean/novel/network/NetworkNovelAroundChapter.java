@@ -5,7 +5,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 小说前后章节
+ * 网络小说前后章节
  * </p>
  *
  * @author Moriaty
