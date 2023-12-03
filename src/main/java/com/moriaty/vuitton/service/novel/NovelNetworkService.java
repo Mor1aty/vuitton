@@ -71,7 +71,7 @@ public class NovelNetworkService {
         if (!StringUtils.hasText(downloaderMark)) {
             return WrapMapper.illegalParam("下载 mark 不能为空");
         }
-        if (!StringUtils.hasText(novelInfo.getChapterUrl())) {
+        if (!StringUtils.hasText(novelInfo.getCatalogueUrl())) {
             return WrapMapper.illegalParam("目录补充不能为空");
         }
         if (!StringUtils.hasText(novelInfo.getName())) {
@@ -83,7 +83,7 @@ public class NovelNetworkService {
         }
         log.info("开始下载小说 {} [{}-{}-{}]", novelInfo.getName(), downloader.getInfo().getWebName(),
                 downloader.getInfo().getMark(), downloader.getInfo().getWebsite());
-        List<NetworkNovelChapter> chapterList = downloader.findChapterList(novelInfo.getChapterUrl());
+        List<NetworkNovelChapter> chapterList = downloader.findChapterList(novelInfo.getCatalogueUrl());
         if (chapterList.isEmpty()) {
             return WrapMapper.failure("获取小说目录失败");
         }
@@ -186,7 +186,8 @@ public class NovelNetworkService {
                 .setIntro(novelInfo.getIntro())
                 .setImgUrl(novelInfo.getImgUrl())
                 .setFilePath(file)
-                .setDownloaderMark(downloaderMark));
+                .setDownloaderMark(downloaderMark)
+                .setDownloaderCatalogueUrl(novelInfo.getCatalogueUrl()));
         novelMap.forEach((index, novel) -> {
             if (StringUtils.hasText(novel.getErrorMsg())) {
                 return;
@@ -201,19 +202,19 @@ public class NovelNetworkService {
         });
     }
 
-    public Wrapper<List<NetworkNovelChapter>> findCatalogue(String downloaderMark, String chapterUrl) {
+    public Wrapper<List<NetworkNovelChapter>> findCatalogue(String downloaderMark, String catalogueUrl) {
         if (!StringUtils.hasText(downloaderMark)) {
             return WrapMapper.illegalParam("下载 mark 不能为空");
         }
-        if (!StringUtils.hasText(chapterUrl)) {
+        if (!StringUtils.hasText(catalogueUrl)) {
             return WrapMapper.illegalParam("目录补充不能为空");
         }
-        log.info("查询小说[{}]章节, 来源: {}", chapterUrl, downloaderMark);
+        log.info("查询小说[{}]章节, 来源: {}", catalogueUrl, downloaderMark);
         NovelDownloader downloader = NovelFactory.getDownloader(downloaderMark);
         if (downloader == null) {
             return WrapMapper.failure("小说下载器 " + downloaderMark + " 不存在");
         }
-        List<NetworkNovelChapter> chapterList = downloader.findChapterList(chapterUrl);
+        List<NetworkNovelChapter> chapterList = downloader.findChapterList(catalogueUrl);
         return WrapMapper.ok(chapterList);
     }
 

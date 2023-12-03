@@ -8,32 +8,23 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 小说
+ * 小说阅读历史
  * </p>
  *
  * @author Moriaty
- * @since 2023/11/30 下午2:00
+ * @since 2023/12/3 14:37
  */
 @Data
-@TableName("`novel`")
+@TableName("`novel_read_history`")
 @Accessors(chain = true)
-public class Novel {
+public class NovelReadHistory {
 
     @TableId(type = IdType.INPUT)
     private String id;
 
-    private String name;
+    private String readTime;
 
-    private String author;
+    private String novel;
 
-    private String intro;
-
-    private String imgUrl;
-
-    private String filePath;
-
-    private String downloaderMark;
-
-    private String downloaderCatalogueUrl;
-
+    private Integer chapterIndex;
 }

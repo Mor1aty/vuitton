@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuitton</title>
+    <meta
+            name="viewport"
+            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/image.css}"/>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav">
+    <a class="aui-pull-left aui-btn" th:href="'/novel/local/novel_info?novelId='+${novel.id}">
+        <span class="aui-iconfont aui-icon-left"></span>返回
+    </a>
+    <div class="aui-title">Vuitton 本地小说校验</div>
+</header>
+<section class="aui-content" style="margin: 0.5rem">
+    <div class="aui-card-list">
+        <div class="aui-card-list-header">
+            <div class="aui-info">
+                <div class="aui-info-item">
+                    <img th:src="${novel.imgUrl}"
+                         alt="无图片"
+                         src=""
+                         style="width: 2.5rem"
+                         onclick="showCoverImg(this)"/>
+                </div>
+                <div style="display: flex; flex-direction: column; margin-left: 1rem">
+                    <div style="font-size: 1.2rem; font-weight: 600" th:text="${novel.name}"></div>
+                    <div style="font-size: 0.8rem; font-weight: 500; margin-left: 0.2rem"
+                         th:text="'作者: '+${novel.author}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="aui-card-list-content">
+            <div>
+                <p th:text="${novel.intro}" style="text-indent: 2em"></p>
+            </div>
+        </div>
+    </div>
+    <div class="aui-card-list" style="margin: 0.5rem" th:if="${#customUtil.listHasValue(checkingChapterList)}">
+        <div class="aui-card-list-header aui-text-primary">
+            正在恢复
+        </div>
+        <div class="aui-card-list-content-padded">
+            <ul class="aui-list aui-media-list">
+                <li class="aui-list-item"
+                    th:each="checkingChapter : ${checkingChapterList}">
+                    <p th:text="${checkingChapter}"></p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="aui-card-list" style="margin: 0.5rem" th:if="${#customUtil.listHasValue(lossNovelChapterList)}">
+        <div class="aui-card-list-header aui-text-primary">
+            <div class="aui-title">恢复?</div>
+        </div>
+        <div class="aui-card-list-footer">
+            <div>
+                <div class="aui-list-item-title aui-text-primary"
+                     onclick="goNovelCheck(0)">
+                    取消
+                </div>
+            </div>
+            <div>
+                <div class="aui-list-item-title aui-text-primary"
+                     onclick="goNovelCheck(2)">
+                    恢复
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="aui-card-list" style="margin: 0.5rem">
+        <div class="aui-card-list-header aui-text-primary">
+            <div class="aui-title">校验</div>
+            <a class="aui-pull-right aui-text-primary" onclick="goNovelCheck(1)">
+                开始
+            </a>
+        </div>
+        <div class="aui-card-list-content-padded">
+            <div th:if="${!#customUtil.listHasValue(lossNovelChapterList)}">
+                无结果
+            </div>
+            <div th:if="${#customUtil.listHasValue(lossNovelChapterList)}">
+                <ul class="aui-list aui-media-list">
+                    <li class="aui-list-item" th:each="lossNovelChapter : ${lossNovelChapterList}">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title aui-font-size-18"
+                                 th:text="${lossNovelChapter.chapterIndex}"></div>
+                            <p class="aui-ellipsis-2" th:if="${lossNovelChapter.preNearChapter != null}"
+                               th:text="'上一章:' + ${lossNovelChapter.preNearChapter.name}
+                            + '[' + ${lossNovelChapter.preNearChapter.index} + ']'"></p>
+                            <p class="aui-ellipsis-2" th:if="${lossNovelChapter.nextNearChapter != null}"
+                               th:text="'下一章:' + ${lossNovelChapter.nextNearChapter.name}
+                            + '[' + ${lossNovelChapter.nextNearChapter.index} + ']'"></p>
+                        </div>
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="cover" class="cover" onclick="hideCoverImg()">
+    <img id="cover-image" class="cover-image" src="" alt="无图片"/>
+</div>
+</body>
+<script th:src="@{/js/image.js}"></script>
+<script th:inline="javascript">
+
+    if ([[${checkingNovelStart}]]) {
+        window.location.href = "novel_check?" +
+            "novelId=" + [[${novel.id}]]
+            + "&novelCheckAction=0";
+    }
+
+    function goNovelCheck(novelCheckAction) {
+        window.location.href = "novel_check?"
+            + "novelId=" + [[${novel.id}]]
+            + "&novelCheckAction=" + novelCheckAction;
+    }
+</script>
+</html>

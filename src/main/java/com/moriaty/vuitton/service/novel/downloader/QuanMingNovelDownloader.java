@@ -92,7 +92,7 @@ public class QuanMingNovelDownloader implements NovelDownloader {
             if (!a.isEmpty()) {
                 HtmlElement aFirst = a.getFirst();
                 novelInfo.setName(aFirst.getTextContent());
-                novelInfo.setChapterUrl(aFirst.getAttribute("href"));
+                novelInfo.setCatalogueUrl(aFirst.getAttribute("href"));
             }
         }
         HtmlElement author = divList.get(2);
@@ -109,21 +109,21 @@ public class QuanMingNovelDownloader implements NovelDownloader {
     }
 
     @Override
-    public List<NetworkNovelChapter> findChapterList(String chapterUrl) {
+    public List<NetworkNovelChapter> findChapterList(String catalogueUrl) {
         try {
             List<NetworkNovelChapter> chapterList = new ArrayList<>();
-            Document doc = Jsoup.connect(info.getWebsite() + chapterUrl)
+            Document doc = Jsoup.connect(info.getWebsite() + catalogueUrl)
                     .timeout(Constant.Network.CONNECT_TIMEOUT)
                     .headers(Constant.Network.CHROME_HEADERS)
                     .get();
-            Element list = doc.getElementsByClass("listmain").get(0);
+            Element list = doc.getElementsByClass("listmain").getFirst();
             Elements ddList = list.getElementsByTag("dd");
             for (int i = 0; i < ddList.size(); i++) {
                 Element dd = ddList.get(i);
                 if (dd.hasClass("pc_none")) {
                     continue;
                 }
-                Element a = dd.getElementsByTag("a").get(0);
+                Element a = dd.getElementsByTag("a").getFirst();
                 String href = a.attr("href");
                 chapterList.add(new NetworkNovelChapter()
                         .setIndex(i)

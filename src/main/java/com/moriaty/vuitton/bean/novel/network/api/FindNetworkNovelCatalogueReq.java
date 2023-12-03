@@ -15,6 +15,6 @@ public class FindNetworkNovelCatalogueReq {
 
     private String downloaderMark;
 
-    private String chapterUrl;
+    private String catalogueUrl;
 
 }

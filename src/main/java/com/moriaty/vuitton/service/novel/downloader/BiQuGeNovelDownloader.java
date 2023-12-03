@@ -50,18 +50,18 @@ public class BiQuGeNovelDownloader implements NovelDownloader {
     }
 
     @Override
-    public List<NetworkNovelChapter> findChapterList(String chapterUrl) {
+    public List<NetworkNovelChapter> findChapterList(String catalogueUrl) {
         try {
             List<NetworkNovelChapter> chapterList = new ArrayList<>();
-            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + chapterUrl)
+            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + catalogueUrl)
                     .timeout(Constant.Network.CONNECT_TIMEOUT)
                     .headers(Constant.Network.CHROME_HEADERS)
                     .get();
-            Element list = doc.getElementsByClass("article_texttitleb").get(0);
+            Element list = doc.getElementsByClass("article_texttitleb").getFirst();
             Elements liList = list.getElementsByTag("li");
             for (int i = 0; i < liList.size(); i++) {
                 Element li = liList.get(i);
-                Element a = li.getElementsByTag("a").get(0);
+                Element a = li.getElementsByTag("a").getFirst();
                 String href = a.attr("href");
                 chapterList.add(new NetworkNovelChapter()
                         .setIndex(i)

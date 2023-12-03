@@ -23,7 +23,7 @@ public class NetworkNovelInfo {
 
     private String imgUrl;
 
-    private String chapterUrl;
+    private String catalogueUrl;
 
     private String storageKey;
 

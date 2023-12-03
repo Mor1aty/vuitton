@@ -63,7 +63,7 @@ public class VideoView implements InitializingBean {
             Wrapper<List<VideoViewHistoryInfo>> viewHistoryWrapper = videoService.findVideViewHistory(null);
             model.addAttribute("viewHistory",
                     !WrapMapper.isOk(viewHistoryWrapper) || viewHistoryWrapper.data().isEmpty() ?
-                            null : viewHistoryWrapper.data().get(0));
+                            null : viewHistoryWrapper.data().getFirst());
         }
         return "video/video";
     }
@@ -86,14 +86,14 @@ public class VideoView implements InitializingBean {
                     "videoWrapper", String.valueOf(videoWrapper),
                     "episodeMapper", String.valueOf(episodeMapper)));
         }
-        model.addAttribute("videoInfo", videoWrapper.data().get(0));
+        model.addAttribute("videoInfo", videoWrapper.data().getFirst());
         model.addAttribute("episodeList", episodeMapper.data());
         model.addAttribute("fileServerUrl", ServerInfo.BASE_INFO.getFileServerUrl());
 
         Wrapper<List<VideoViewHistoryInfo>> viewHistoryWrapper = videoService.findVideViewHistory(videoId);
         model.addAttribute("viewHistory",
                 !WrapMapper.isOk(viewHistoryWrapper) || viewHistoryWrapper.data().isEmpty() ?
-                        null : viewHistoryWrapper.data().get(0));
+                        null : viewHistoryWrapper.data().getFirst());
         model.addAttribute("searchText", searchText);
         return "video/video_info";
     }

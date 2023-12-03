@@ -45,12 +45,12 @@ public class NovelNetworkCtrl {
                 .setAuthor(req.getNovelAuthor())
                 .setIntro(req.getNovelIntro())
                 .setImgUrl(req.getNovelImgUrl())
-                .setChapterUrl(req.getNovelChapterUrl()));
+                .setCatalogueUrl(req.getNovelChapterUrl()));
     }
 
     @PostMapping("findNetworkNovelCatalogue")
     public Wrapper<List<NetworkNovelChapter>> findNetworkNovelCatalogue(@RequestBody FindNetworkNovelCatalogueReq req) {
-        return novelNetworkService.findCatalogue(req.getDownloaderMark(), req.getChapterUrl());
+        return novelNetworkService.findCatalogue(req.getDownloaderMark(), req.getCatalogueUrl());
     }
 
     @PostMapping("findNetworkNovelContent")

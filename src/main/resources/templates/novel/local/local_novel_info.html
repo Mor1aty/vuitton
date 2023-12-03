@@ -10,25 +10,7 @@
     <meta name="format-detection" content="telephone=no"/>
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
-    <style>
-        .cover {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        .cover-image {
-            display: block;
-            max-width: 90%;
-            max-height: 90%;
-            margin: 5% auto auto;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/image.css}"/>
 </head>
 <body>
 <header class="aui-bar aui-bar-nav">
@@ -36,6 +18,10 @@
         <span class="aui-iconfont aui-icon-left"></span>返回
     </a>
     <div class="aui-title">Vuitton 本地小说</div>
+    <a class="aui-pull-right aui-btn aui-btn-outlined">
+        <span class="aui-iconfont aui-icon-cert"
+              onclick="goNovelCheck()"></span>
+    </a>
     <a class="aui-pull-right aui-btn aui-btn-outlined">
         <span class="aui-iconfont aui-icon-paper"
               onclick="goNovelDownload()"></span>
@@ -67,6 +53,13 @@
             </div>
             <div class="aui-timeline">
                 <div class="aui-timeline-item-header">目录章节</div>
+                <div class="aui-timeline-item" th:if="${readHistory != null}">
+                    <div class="aui-timeline-item-label aui-bg-danger aui-text-white">继续阅读</div>
+                    <div class="aui-timeline-item-inner">
+                        <h2 th:text="'第'+${readHistory.chapterIndex+1}+'章 '+${readHistory.chapterName}"
+                            th:onclick="|goNovelContent(${readHistory.chapterIndex})|"></h2>
+                    </div>
+                </div>
                 <div class="aui-timeline-item" th:each="chapter : ${chapterList}">
                     <div
                             class="aui-timeline-item-label aui-bg-info aui-text-white"
@@ -85,6 +78,7 @@
     <img id="cover-image" class="cover-image" src="" alt="无图片"/>
 </div>
 </body>
+<script th:src="@{/js/image.js}"></script>
 <script th:inline="javascript">
     function goNovelContent(chapterIndex) {
         window.location.href = "novel_content?"
@@ -99,13 +93,10 @@
             , "_self");
     }
 
-    function showCoverImg(image) {
-        document.getElementById("cover").style.display = "block";
-        document.getElementById("cover-image").src = image.src;
-    }
-
-    function hideCoverImg() {
-        document.getElementById("cover").style.display = "none";
+    function goNovelCheck() {
+        window.location.href = "novel_check?"
+            + "novelId=" + [[${novel.id}]]
+            + "&novelCheckAction=0"
     }
 </script>
 </html>

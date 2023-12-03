@@ -50,10 +50,10 @@ public class TwoBiQuNovelDownloader implements NovelDownloader {
     }
 
     @Override
-    public List<NetworkNovelChapter> findChapterList(String chapterUrl) {
+    public List<NetworkNovelChapter> findChapterList(String catalogueUrl) {
         try {
             List<NetworkNovelChapter> chapterList = new ArrayList<>();
-            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + chapterUrl)
+            Document doc = Jsoup.connect(info.getCatalogueBaseUrl() + catalogueUrl)
                     .timeout(Constant.Network.CONNECT_TIMEOUT)
                     .headers(Constant.Network.CHROME_HEADERS)
                     .get();
@@ -65,12 +65,12 @@ public class TwoBiQuNovelDownloader implements NovelDownloader {
             Elements liList = list.getElementsByTag("li");
             for (int i = 0; i < liList.size(); i++) {
                 Element li = liList.get(i);
-                Element a = li.getElementsByTag("a").get(0);
+                Element a = li.getElementsByTag("a").getFirst();
                 String href = a.attr("href");
                 chapterList.add(new NetworkNovelChapter()
                         .setIndex(i)
                         .setName(a.text())
-                        .setUrl(chapterUrl + "/" + href));
+                        .setUrl(catalogueUrl + "/" + href));
             }
             return chapterList;
         } catch (IOException e) {

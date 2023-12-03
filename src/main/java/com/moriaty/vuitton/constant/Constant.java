@@ -48,7 +48,7 @@ public class Constant {
 
         public static final Map<String, String> CHROME_HEADERS = Map.of(
                 "user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-                              "(KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+                        "(KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
         );
     }
 
@@ -63,5 +63,11 @@ public class Constant {
         public static final int DOWNLOAD_ACTION_ASK = 1;
 
         public static final int DOWNLOAD_ACTION_DO = 2;
+
+        public static final String CHECKING_STORAGE_KEY = "novelChapterCheckingList";
+
+        public static final int CHECK_ACTION_ASK = 1;
+
+        public static final int CHECK_ACTION_DO = 2;
     }
 }

@@ -133,7 +133,7 @@ public class NovelNetworkView implements InitializingBean {
             model.addAttribute("chapterList", chapterList);
         } else {
             Wrapper<List<NetworkNovelChapter>> catalogueWrapper = novelNetworkService
-                    .findCatalogue(novelInfo.getDownloaderMark(), novelInfo.getChapterUrl());
+                    .findCatalogue(novelInfo.getDownloaderMark(), novelInfo.getCatalogueUrl());
             if (WrapMapper.isOk(catalogueWrapper)) {
                 queryCatalogueStorageKey = "queryCatalogueStorageKey-" + UuidUtil.genId();
                 MemoryStorage.put(queryCatalogueStorageKey, catalogueWrapper.data());
@@ -274,7 +274,7 @@ public class NovelNetworkView implements InitializingBean {
                         .setAuthor(downloadNovelAuthor)
                         .setIntro(downloadNovelIntro)
                         .setImgUrl(downloadNovelImgUrl)
-                        .setChapterUrl(downloadNovelChapterUrl)
+                        .setCatalogueUrl(downloadNovelChapterUrl)
                         .setDownloaderMark(downloaderMark));
             }
             if (downloadStatus == Constant.Novel.DOWNLOAD_ACTION_DO) {
@@ -283,7 +283,7 @@ public class NovelNetworkView implements InitializingBean {
                         .setAuthor(downloadNovelAuthor)
                         .setIntro(downloadNovelIntro)
                         .setImgUrl(downloadNovelImgUrl)
-                        .setChapterUrl(downloadNovelChapterUrl)
+                        .setCatalogueUrl(downloadNovelChapterUrl)
                         .setDownloaderMark(downloaderMark);
                 String itemIndex = MemoryStorage.putList(Constant.Novel.DOWNLOADING_STORAGE_KEY, novelInfo);
                 Thread.ofVirtual().name("novelDownload-", 0)

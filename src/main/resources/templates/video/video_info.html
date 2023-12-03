@@ -10,26 +10,7 @@
     <meta name="format-detection" content="telephone=no"/>
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
-
-    <style>
-        .cover {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        .cover-image {
-            display: block;
-            max-width: 90%;
-            max-height: 90%;
-            margin: 5% auto auto;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/image.css}"/>
 </head>
 <body>
 <header class="aui-bar aui-bar-nav">
@@ -96,6 +77,7 @@
     <img id="cover-image" class="cover-image" src="" alt="无图片"/>
 </div>
 </body>
+<script th:src="@{/js/image.js}"></script>
 <script th:inline="javascript">
     function goVideoPlay(videoId, episodeIndex) {
         window.location.href =
@@ -104,15 +86,6 @@
 
     function goVideoViewHistory() {
         window.location.href = "video_view_history?videoId=" + [[${videoInfo.id}]]
-    }
-
-    function showCoverImg(image) {
-        document.getElementById("cover").style.display = "block";
-        document.getElementById("cover-image").src = image.src;
-    }
-
-    function hideCoverImg() {
-        document.getElementById("cover").style.display = "none";
     }
 </script>
 </html>
