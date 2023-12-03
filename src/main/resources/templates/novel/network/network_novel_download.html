@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Vuitton</title>
     <meta name="viewport"
-            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+          content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no"/>
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
@@ -17,11 +17,11 @@
     <div class="aui-title">Vuitton 网络小说下载</div>
 </header>
 <section class="aui-content" style="margin: 0.5rem">
-    <div class="aui-card-list" style="margin: 0.5rem" th:if="${askDownloadNovel != null}">
+    <div class="aui-card-list" th:if="${askDownloadNovel != null}">
         <div class="aui-card-list-header aui-text-primary">
             下载
         </div>
-        <div class="aui-card-list-content-padded">
+        <div class="aui-card-list-content">
             <ul class="aui-list aui-media-list">
                 <li class="aui-list-item">
                     <div class="aui-media-list-item-inner">
@@ -29,10 +29,13 @@
                             <div class="aui-list-item-title aui-font-size-18"
                                  th:text="${askDownloadNovel.name}"></div>
                             <p class="aui-ellipsis-2" th:text="${askDownloadNovel.author}"></p>
-                            <p class="aui-ellipsis-2" th:text="${askDownloadNovel.intro}"></p>
+                            <p class="aui-ellipsis-2" th:text="${#customUtil.stringHasText(askDownloadNovel.intro)
+                            && !askDownloadNovel.intro.equals('null')?askDownloadNovel.intro:''}"></p>
                         </div>
                         <div class="aui-list-item-media" style="width: 3rem">
-                            <img th:src="${askDownloadNovel.imgUrl}" alt="无图片" src=""/>
+                            <img th:src="${#customUtil.stringHasText(askDownloadNovel.imgUrl)
+                            && !askDownloadNovel.intro.equals('null')?
+                            askDownloadNovel.imgUrl:defaultImgUrl}" alt="无图片" src=""/>
                         </div>
                     </div>
                 </li>
@@ -53,14 +56,11 @@
             </div>
         </div>
     </div>
-    <div class="aui-card-list" style="margin: 0.5rem">
+    <div class="aui-card-list">
         <div class="aui-card-list-header aui-text-primary">
             正在下载
         </div>
-        <div class="aui-card-list-content-padded">
-            <div th:if="${!#customUtil.listHasValue(downloadingNovelList)}">
-                无
-            </div>
+        <div class="aui-card-list-content">
             <div th:if="${#customUtil.listHasValue(downloadingNovelList)}">
                 <ul class="aui-list aui-media-list">
                     <li class="aui-list-item"
@@ -70,10 +70,11 @@
                                 <div class="aui-list-item-title aui-font-size-18"
                                      th:text="${novelInfo.name}"></div>
                                 <p class="aui-ellipsis-2" th:text="${novelInfo.author}"></p>
-                                <p class="aui-ellipsis-2" th:text="${novelInfo.intro}"></p>
+                                <p class="aui-ellipsis-2" th:text="${novelInfo.intro == null? '':novelInfo.intro}"></p>
                             </div>
                             <div class="aui-list-item-media" style="width: 3rem">
-                                <img th:src="${novelInfo.imgUrl}" alt="无图片" src=""/>
+                                <img th:src="${#customUtil.stringHasText(novelInfo.imgUrl)?
+                                novelInfo.imgUrl:defaultImgUrl}" alt="无图片" src=""/>
                             </div>
                         </div>
                     </li>
@@ -81,14 +82,11 @@
             </div>
         </div>
     </div>
-    <div class="aui-card-list" style="margin: 0.5rem">
+    <div class="aui-card-list">
         <div class="aui-card-list-header aui-text-primary">
             已下载
         </div>
-        <div class="aui-card-list-content-padded">
-            <div th:if="${!#customUtil.listHasValue(downloadedNovelList)}">
-                无
-            </div>
+        <div class="aui-card-list-content">
             <div th:if="${#customUtil.listHasValue(downloadedNovelList)}">
                 <ul class="aui-list aui-media-list">
                     <li class="aui-list-item"
@@ -101,7 +99,9 @@
                                 <p class="aui-ellipsis-2" th:text="${novelInfo.intro}"></p>
                             </div>
                             <div class="aui-list-item-media" style="width: 3rem">
-                                <img th:src="${novelInfo.imgUrl}" alt="无图片" src=""/>
+                                <img th:src="${#customUtil.stringHasText(novelInfo.imgUrl)?
+                                novelInfo.imgUrl:defaultImgUrl}"
+                                     alt="无图片" src=""/>
                             </div>
                         </div>
                     </li>
@@ -123,13 +123,17 @@
         if (downloadAction === 2) {
             const downloadNovel = [[${askDownloadNovel}]];
             if (downloadNovel) {
+                const intro = downloadNovel.intro != null && downloadNovel.intro.trim().length > 0
+                && downloadNovel.intro !== 'null' ? downloadNovel.intro : "";
+                const imgUrl = downloadNovel.imgUrl != null && downloadNovel.imgUrl.trim().length > 0
+                && downloadNovel.imgUrl !== 'null' ? downloadNovel.imgUrl : [[${defaultImgUrl}]];
                 window.location.href = "novel_download?"
                     + "downloadStatus=2"
                     + "&downloadNovelName=" + downloadNovel.name
                     + "&downloadNovelAuthor=" + downloadNovel.author
-                    + "&downloadNovelIntro=" + downloadNovel.intro
-                    + "&downloadNovelImgUrl=" + downloadNovel.imgUrl
-                    + "&downloadNovelChapterUrl=" + downloadNovel.chapterUrl
+                    + "&downloadNovelIntro=" + intro
+                    + "&downloadNovelImgUrl=" + imgUrl
+                    + "&downloadNovelCatalogueUrl=" + downloadNovel.catalogueUrl
                     + "&downloaderMark=" + downloadNovel.downloaderMark
             }
         }

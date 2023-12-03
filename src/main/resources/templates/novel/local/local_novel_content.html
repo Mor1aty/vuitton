@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Vuitton</title>
     <meta name="viewport"
-            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+          content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no"/>
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
@@ -70,9 +70,14 @@
     }
 
     function initNovelContent() {
-        const chapter = [[${aroundChapter.chapter}]]
+        const novelContent = document.getElementById("novelContent");
+        const chapter = [[${aroundChapter.chapter}]];
         if (chapter) {
-            document.getElementById("novelContent").innerHTML = chapter.contentHtml
+            novelContent.innerHTML = chapter.contentHtml;
+        }
+        const fontSizeSetting = [[${fontSizeSetting}]];
+        if (fontSizeSetting) {
+            novelContent.style.fontSize = fontSizeSetting.value + "px";
         }
     }
 </script>

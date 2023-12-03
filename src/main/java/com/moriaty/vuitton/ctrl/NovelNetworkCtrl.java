@@ -50,7 +50,7 @@ public class NovelNetworkCtrl {
 
     @PostMapping("findNetworkNovelCatalogue")
     public Wrapper<List<NetworkNovelChapter>> findNetworkNovelCatalogue(@RequestBody FindNetworkNovelCatalogueReq req) {
-        return novelNetworkService.findCatalogue(req.getDownloaderMark(), req.getCatalogueUrl());
+        return novelNetworkService.findCatalogue(req.getDownloaderMark(), req.getCatalogueUrl(), req.isReverse());
     }
 
     @PostMapping("findNetworkNovelContent")

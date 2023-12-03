@@ -6,7 +6,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 小说内容设置
+ * 小说设置
  * </p>
  *
  * @author Moriaty
@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class NovelContentSetting {
+public class NovelSetting {
 
     private Setting contentFontSize;
 }

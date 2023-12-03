@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Vuitton</title>
     <meta name="viewport"
-            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+          content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no"/>
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
@@ -22,7 +22,7 @@
         <div class="aui-card-list-header">
             <div class="aui-info">
                 <div class="aui-info-item">
-                    <img th:src="${novel.imgUrl}"
+                    <img th:src="${#customUtil.stringHasText(novel.imgUrl)?novel.imgUrl:defaultImgUrl}"
                          alt="无图片"
                          src=""
                          style="width: 2.5rem"
@@ -41,11 +41,11 @@
             </div>
         </div>
     </div>
-    <div class="aui-card-list" style="margin: 0.5rem" th:if="${#customUtil.listHasValue(checkingChapterList)}">
+    <div class="aui-card-list" th:if="${#customUtil.listHasValue(checkingChapterList)}">
         <div class="aui-card-list-header aui-text-primary">
             正在恢复
         </div>
-        <div class="aui-card-list-content-padded">
+        <div class="aui-card-list-content">
             <ul class="aui-list aui-media-list">
                 <li class="aui-list-item"
                     th:each="checkingChapter : ${checkingChapterList}">
@@ -54,7 +54,7 @@
             </ul>
         </div>
     </div>
-    <div class="aui-card-list" style="margin: 0.5rem" th:if="${#customUtil.listHasValue(lossNovelChapterList)}">
+    <div class="aui-card-list" th:if="${#customUtil.listHasValue(lossNovelChapterList)}">
         <div class="aui-card-list-header aui-text-primary">
             <div class="aui-title">恢复?</div>
         </div>
@@ -73,17 +73,14 @@
             </div>
         </div>
     </div>
-    <div class="aui-card-list" style="margin: 0.5rem">
+    <div class="aui-card-list">
         <div class="aui-card-list-header aui-text-primary">
             <div class="aui-title">校验</div>
             <a class="aui-pull-right aui-text-primary" onclick="goNovelCheck(1)">
                 开始
             </a>
         </div>
-        <div class="aui-card-list-content-padded">
-            <div th:if="${!#customUtil.listHasValue(lossNovelChapterList)}">
-                无结果
-            </div>
+        <div class="aui-card-list-content">
             <div th:if="${#customUtil.listHasValue(lossNovelChapterList)}">
                 <ul class="aui-list aui-media-list">
                     <li class="aui-list-item" th:each="lossNovelChapter : ${lossNovelChapterList}">
@@ -101,6 +98,28 @@
                     </li>
                 </ul>
             </div>
+            <div th:if="${#customUtil.listHasValue(fillUpNovelList)}">
+                <ul class="aui-list aui-media-list">
+                    <li class="aui-list-item"
+                        th:each="fillUpNovel : ${fillUpNovelList}"
+                        th:data="${fillUpNovel.storageKey}"
+                        th:onclick="|goNovelCheckFillUp(this.getAttribute('data'))|">
+                        <div class="aui-media-list-item-inner">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title aui-font-size-18"
+                                     th:text="${fillUpNovel.name}"></div>
+                                <p class="aui-ellipsis-2" th:text="${fillUpNovel.author}"></p>
+                                <p class="aui-ellipsis-2" th:text="${fillUpNovel.intro}"></p>
+                            </div>
+                            <div class="aui-list-item-media" style="width: 3rem">
+                                <img th:src="${#customUtil.stringHasText(fillUpNovel.imgUrl)?
+                                fillUpNovel.imgUrl:defaultImgUrl}"
+                                     alt="无图片" src=""/>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </section>
@@ -113,14 +132,21 @@
 
     if ([[${checkingNovelStart}]]) {
         window.location.href = "novel_check?" +
-            "novelId=" + [[${novel.id}]]
-            + "&novelCheckAction=0";
+            "novelId=" + [[${novel.id}]];
     }
 
     function goNovelCheck(novelCheckAction) {
         window.location.href = "novel_check?"
             + "novelId=" + [[${novel.id}]]
             + "&novelCheckAction=" + novelCheckAction;
+    }
+
+    function goNovelCheckFillUp(fillUpNovelStorageKey) {
+        window.location.href = "novel_check?"
+            + "novelId=" + [[${novel.id}]]
+            + "&novelCheckAction=3"
+            + "&fillUpNovelSearchKey=" + [[${fillUpNovelSearchKey}]]
+            + "&fillUpNovelStorageKey=" + fillUpNovelStorageKey;
     }
 </script>
 </html>

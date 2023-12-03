@@ -24,7 +24,7 @@
               onclick="goNovelDownload()"></span>
     </a>
 </header>
-<section class="aui-content">
+<section class="aui-content" style="margin: 0.5rem">
     <div class="aui-searchbar" id="search">
         <div class="aui-searchbar-input aui-border-radius">
             <i class="aui-iconfont aui-icon-search"></i>
@@ -43,17 +43,14 @@
                    th:id="'downloader-'+${downloader.mark}">
         </label>
     </div>
-    <div class="aui-card-list" style="margin: 0.5rem" th:each="searchResult : ${searchResultMap}">
+    <div class="aui-card-list" th:each="searchResult : ${searchResultMap}">
         <div class="aui-card-list-header aui-text-primary"
              th:text="${searchResult.value.sourceName}+'['+${searchResult.key}+']'">
         </div>
-        <div class="aui-card-list-content-padded">
+        <div class="aui-card-list-content">
             <div th:if="${#customUtil.stringHasText(searchResult.value.errorMsg)}"
                  th:text="${searchResult.value.errorMsg}"></div>
             <div th:if="${!#customUtil.stringHasText(searchResult.value.errorMsg)}">
-                <div th:if="${!#customUtil.listHasValue(searchResult.value.novelInfoList)}">
-                    无结果
-                </div>
                 <div th:if="${#customUtil.listHasValue(searchResult.value.novelInfoList)}">
                     <ul class="aui-list aui-media-list">
                         <li class="aui-list-item"
@@ -68,7 +65,9 @@
                                     <p class="aui-ellipsis-2" th:text="${novelInfo.intro}"></p>
                                 </div>
                                 <div class="aui-list-item-media" style="width: 3rem">
-                                    <img th:src="${novelInfo.imgUrl}" alt="无图片" src=""/>
+                                    <img th:src="${#customUtil.stringHasText(novelInfo.imgUrl)?
+                                    novelInfo.imgUrl:defaultImgUrl}"
+                                         alt="无图片" src=""/>
                                 </div>
                             </div>
                         </li>
@@ -101,8 +100,9 @@
     }
 
     function goNovelInfo(networkNovelStorageKey) {
-        window.location.href = "network/novel_info?queryNetworkNovelStorageKey="
-            + [[${queryNetworkNovelStorageKey}]] + "&networkNovelStorageKey=" + networkNovelStorageKey
+        window.location.href = "network/novel_info?"
+            + "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
+            + "&networkNovelStorageKey=" + networkNovelStorageKey
             + "&networkNovelPageKey=" + [[${networkNovelPageKey}]]
     }
 
@@ -151,12 +151,6 @@
     if (downloaderMarkList) {
         downloaderMarkList.forEach(value => {
             const downloaderInput = document.getElementById('downloader-' + value);
-            downloaderInput.checked = true;
-        });
-    } else {
-        const downloaderList = [[${downloaderList}]];
-        downloaderList.forEach(value => {
-            const downloaderInput = document.getElementById('downloader-' + value.mark);
             downloaderInput.checked = true;
         });
     }

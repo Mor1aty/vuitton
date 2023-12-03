@@ -62,7 +62,7 @@ public class VideoView implements InitializingBean {
         if (!StringUtils.hasText(searchText)) {
             Wrapper<List<VideoViewHistoryInfo>> viewHistoryWrapper = videoService.findVideViewHistory(null);
             model.addAttribute("viewHistory",
-                    !WrapMapper.isOk(viewHistoryWrapper) || viewHistoryWrapper.data().isEmpty() ?
+                    WrapMapper.isFailure(viewHistoryWrapper) || viewHistoryWrapper.data().isEmpty() ?
                             null : viewHistoryWrapper.data().getFirst());
         }
         return "video/video";
@@ -76,12 +76,12 @@ public class VideoView implements InitializingBean {
             return ViewUtil.goParamError(model, KeyValuePair.of("videoId", videoId));
         }
         Wrapper<List<Video>> videoWrapper = videoService.findVideo(videoId, null);
-        if (!WrapMapper.isOk(videoWrapper) || videoWrapper.data().size() != 1) {
+        if (WrapMapper.isFailure(videoWrapper) || videoWrapper.data().size() != 1) {
             return ViewUtil.goError(model, "视频信息出问题啦", KeyValuePair.of(
                     "videoWrapper", String.valueOf(videoWrapper)));
         }
         Wrapper<List<VideoEpisode>> episodeMapper = videoService.findVideoEpisode(videoId);
-        if (!WrapMapper.isOk(episodeMapper)) {
+        if (WrapMapper.isFailure(episodeMapper)) {
             return ViewUtil.goError(model, "视频剧集出问题啦", KeyValuePair.ofList(
                     "videoWrapper", String.valueOf(videoWrapper),
                     "episodeMapper", String.valueOf(episodeMapper)));
@@ -92,7 +92,7 @@ public class VideoView implements InitializingBean {
 
         Wrapper<List<VideoViewHistoryInfo>> viewHistoryWrapper = videoService.findVideViewHistory(videoId);
         model.addAttribute("viewHistory",
-                !WrapMapper.isOk(viewHistoryWrapper) || viewHistoryWrapper.data().isEmpty() ?
+                WrapMapper.isFailure(viewHistoryWrapper) || viewHistoryWrapper.data().isEmpty() ?
                         null : viewHistoryWrapper.data().getFirst());
         model.addAttribute("searchText", searchText);
         return "video/video_info";
@@ -109,13 +109,13 @@ public class VideoView implements InitializingBean {
         }
         int episodeIndex = Integer.parseInt(episodeIndexStr);
         Wrapper<VideoAroundEpisode> aroundEpisodeWrapper = videoService.findVideoAroundEpisode(videoId, episodeIndex);
-        if (!WrapMapper.isOk(aroundEpisodeWrapper)) {
+        if (WrapMapper.isFailure(aroundEpisodeWrapper)) {
             return ViewUtil.goError(model, "视频播放出问题啦", KeyValuePair.ofList(
                     "videoId", videoId, "episodeIndex", episodeIndexStr,
                     "aroundEpisodeWrapper", String.valueOf(aroundEpisodeWrapper)));
         }
         Wrapper<Void> insertWrapper = videoService.insertVideoViewHistory(videoId, episodeIndex);
-        if (!WrapMapper.isOk(insertWrapper)) {
+        if (WrapMapper.isFailure(insertWrapper)) {
             return ViewUtil.goError(model, "插入观看记录出问题啦", KeyValuePair.ofList(
                     "videoId", videoId, "episodeIndex", episodeIndexStr));
         }
@@ -130,7 +130,7 @@ public class VideoView implements InitializingBean {
                                    @RequestParam(value = "videoId", required = false) String videoId,
                                    @RequestParam(value = "searchText", required = false) String searchText) {
         Wrapper<List<VideoViewHistoryInfo>> historyWrapper = videoService.findVideViewHistory(videoId);
-        if (!WrapMapper.isOk(historyWrapper)) {
+        if (WrapMapper.isFailure(historyWrapper)) {
             return ViewUtil.goError(model, "观看记录出问题啦",
                     KeyValuePair.of("historyWrapper", String.valueOf(historyWrapper)));
         }

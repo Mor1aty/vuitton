@@ -132,7 +132,7 @@ public class NovelNetworkService {
 
     private void handleDownloadResult(List<NetworkNovelChapter> chapterList, Map<Integer, NetworkNovelContent> novelMap,
                                       Map<Integer, NetworkNovelContent> errorNovelChapter) {
-        if (chapterList.size() <= novelMap.size() + errorNovelChapter.size()) {
+        if (errorNovelChapter.isEmpty() || chapterList.size() <= novelMap.size() + errorNovelChapter.size()) {
             return;
         }
         log.info("下载存在异常章节");
@@ -202,7 +202,8 @@ public class NovelNetworkService {
         });
     }
 
-    public Wrapper<List<NetworkNovelChapter>> findCatalogue(String downloaderMark, String catalogueUrl) {
+    public Wrapper<List<NetworkNovelChapter>> findCatalogue(String downloaderMark, String catalogueUrl,
+                                                            boolean reverse) {
         if (!StringUtils.hasText(downloaderMark)) {
             return WrapMapper.illegalParam("下载 mark 不能为空");
         }
@@ -215,6 +216,9 @@ public class NovelNetworkService {
             return WrapMapper.failure("小说下载器 " + downloaderMark + " 不存在");
         }
         List<NetworkNovelChapter> chapterList = downloader.findChapterList(catalogueUrl);
+        if (reverse) {
+            chapterList = chapterList.reversed();
+        }
         return WrapMapper.ok(chapterList);
     }
 

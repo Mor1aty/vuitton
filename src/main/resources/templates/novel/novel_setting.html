@@ -16,15 +16,59 @@
     </a>
     <div class="aui-title">Vuitton 小说设置</div>
 </header>
-<section class="aui-content">
-    <div class="aui-card-list" style="margin: 0.5rem" th:if="${setting.contentFontSize != null}">
-        <div class="aui-card-list-header">内容字体设置</div>
-        <div class="aui-card-list-content-padded">
-            <div th:text="${setting.contentFontSize}"></div>
+<section class="aui-content" style="margin: 0.5rem">
+    <div class="aui-card-list" th:if="${setting.contentFontSize != null}">
+        <div class="aui-card-list-header">
+            <div class="aui-title">内容字体设置</div>
+            <a class="aui-pull-right aui-text-primary"
+               th:data="${setting.contentFontSize.id}"
+               th:onclick="|saveNovelSetting(this.getAttribute('data'))|">
+                保存
+            </a>
+        </div>
+        <div class="aui-card-list-content">
+            <div class="aui-range">
+                <p id="fontSize"></p>
+                <label for="fontSizeRange"></label>
+                <input type="range" th:value="${setting.contentFontSize.value}"
+                       max="30" min="15" step="1" id="fontSizeRange"/>
+            </div>
+            <div id="fontSizeContent">小说内容, 小说内容, 小说内容</div>
         </div>
     </div>
 </section>
 </body>
+<script th:src="@{/aui/aui-range.js}"></script>
 <script th:inline="javascript">
+    if ([[${saveSettingStart}]]) {
+        window.location.href = "setting?back=" + [[${back}]];
+    }
+
+    const contentFontSize = [[${setting.contentFontSize}]];
+    let fontSizeNum;
+    if (contentFontSize) {
+        const fontSizeContent = document.getElementById("fontSizeContent");
+        const fontSize = document.getElementById("fontSize");
+        fontSizeNum = parseInt(contentFontSize.value);
+        fontSize.innerText = "字体大小: " + fontSizeNum + "px";
+        fontSizeContent.style.fontSize = fontSizeNum + "px";
+        const fontSizeRange = new auiRange({
+            element: document.getElementById("fontSizeRange")
+        }, function (ret) {
+            fontSizeNum = parseInt(ret.value);
+            fontSize.innerText = "字体大小: " + fontSizeNum.toString() + "px";
+            fontSizeContent.style.fontSize = fontSizeNum + "px";
+        });
+    }
+
+    function saveNovelSetting(settingId) {
+        let param;
+        if (contentFontSize && contentFontSize.id === settingId) {
+            param = "&settingId=" + settingId + "&settingValue=" + fontSizeNum;
+        }
+        if (param) {
+            window.location.href = "setting?back=" + [[${back}]] + param;
+        }
+    }
 </script>
 </html>

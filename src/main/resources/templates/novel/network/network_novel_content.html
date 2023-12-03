@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <title>Vuitton</title>
     <meta name="viewport"
-            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+          content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no"/>
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
 </head>
 <body>
 <header class="aui-bar aui-bar-nav">
-    <a class="aui-pull-left aui-btn" id="back">
+    <a class="aui-pull-left aui-btn" onclick="goBack()">
         <span class="aui-iconfont aui-icon-left"></span>返回
     </a>
     <div class="aui-title">Vuitton 网络小说</div>
@@ -70,12 +70,25 @@
             + "&downloaderMark=" + [[${downloaderMark}]]
     }
 
-    document.getElementById("novelContent").innerHTML = [[${content.contentHtml}]]
-    document.getElementById("back").href = "novel_info?"
-        + "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
-        + "&networkNovelStorageKey=" + [[${networkNovelStorageKey}]]
-        + "&networkNovelPageKey=" + [[${networkNovelPageKey}]]
-        + "&queryCatalogueStorageKey=" + [[${queryCatalogueStorageKey}]]
-        + "&networkNovelInfoPageKey=" + [[${networkNovelInfoPageKey}]]
+    initNovelContent();
+
+    function initNovelContent() {
+        const novelContent = document.getElementById("novelContent");
+        novelContent.innerHTML = [[${content.contentHtml}]];
+
+        const fontSizeSetting = [[${fontSizeSetting}]];
+        if (fontSizeSetting) {
+            novelContent.style.fontSize = fontSizeSetting.value + "px";
+        }
+    }
+
+    function goBack() {
+        window.location.href = "novel_info?"
+            + "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
+            + "&networkNovelStorageKey=" + [[${networkNovelStorageKey}]]
+            + "&networkNovelPageKey=" + [[${networkNovelPageKey}]]
+            + "&queryCatalogueStorageKey=" + [[${queryCatalogueStorageKey}]]
+            + "&networkNovelInfoPageKey=" + [[${networkNovelInfoPageKey}]]
+    }
 </script>
 </html>

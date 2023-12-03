@@ -5,6 +5,8 @@ import com.moriaty.vuitton.bean.KeyValuePair;
 import com.moriaty.vuitton.bean.novel.local.LocalNovelAroundChapter;
 import com.moriaty.vuitton.bean.novel.local.NovelCheckChapter;
 import com.moriaty.vuitton.bean.novel.local.NovelReadHistoryInfo;
+import com.moriaty.vuitton.bean.novel.network.NetworkNovelInfo;
+import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
 import com.moriaty.vuitton.constant.Constant;
 import com.moriaty.vuitton.core.log.ViewLog;
 import com.moriaty.vuitton.core.module.Module;
@@ -14,7 +16,12 @@ import com.moriaty.vuitton.core.wrap.WrapMapper;
 import com.moriaty.vuitton.core.wrap.Wrapper;
 import com.moriaty.vuitton.dao.entity.Novel;
 import com.moriaty.vuitton.dao.entity.NovelChapter;
+import com.moriaty.vuitton.dao.entity.Setting;
+import com.moriaty.vuitton.service.novel.NovelFactory;
 import com.moriaty.vuitton.service.novel.NovelLocalService;
+import com.moriaty.vuitton.service.novel.NovelService;
+import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
+import com.moriaty.vuitton.util.UuidUtil;
 import com.moriaty.vuitton.util.ViewUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +33,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -51,6 +59,8 @@ public class NovelLocalView implements InitializingBean {
 
     private final NovelLocalService novelLocalService;
 
+    private final NovelService novelService;
+
     @Override
     public void afterPropertiesSet() {
         ModuleFactory.addModule(new Module()
@@ -67,25 +77,36 @@ public class NovelLocalView implements InitializingBean {
         model.addAttribute("novelList", WrapMapper.isOk(novelWrapper) ?
                 novelWrapper.data() : Collections.emptyList());
         model.addAttribute("searchText", searchText);
+        Wrapper<String> defaultImgUrlWrapper = novelService.findDefaultImgUrl();
+        model.addAttribute("defaultImgUrl",
+                WrapMapper.isOk(defaultImgUrlWrapper) ? defaultImgUrlWrapper.data() : null);
         return "novel/local/local_novel";
     }
 
     @RequestMapping("novel_info")
     @ViewLog
-    public String localNovelInfo(Model model, @RequestParam("novelId") String novelId) {
-        Wrapper<List<Novel>> novelWrapper = novelLocalService.findNovel(novelId, null);
-        if (!WrapMapper.isOk(novelWrapper) || novelWrapper.data().isEmpty()) {
-            return ViewUtil.goError(model, "本地小说不存在", KeyValuePair.of("novelId", novelId));
+    public String localNovelInfo(Model model, @RequestParam("novelId") String novelId,
+                                 @RequestParam(value = "chapterOrder", required = false) String chapterOrderStr) {
+        Novel novel = findNovelById(novelId);
+        if (novel == null) {
+            return ViewUtil.goError(model, "小说不存在", KeyValuePair.of("novelId", novelId));
         }
-
-        model.addAttribute("novel", novelWrapper.data().getFirst());
-        Wrapper<List<NovelChapter>> catalogueWrapper = novelLocalService.findCatalogue(novelId);
+        model.addAttribute("novel", novel);
+        Wrapper<List<NovelChapter>> catalogueWrapper = novelLocalService.findCatalogue(novelId,
+                StringUtils.hasText(chapterOrderStr)
+                        && chapterOrderStr.equals(String.valueOf(Constant.Novel.CHAPTER_ORDER_DESC)));
         model.addAttribute("chapterList",
                 WrapMapper.isOk(catalogueWrapper) ? catalogueWrapper.data() : Collections.emptyList());
         Wrapper<List<NovelReadHistoryInfo>> readHistoryWrapper = novelLocalService.findNovelReadHistory(novelId);
         model.addAttribute("readHistory",
-                !WrapMapper.isOk(readHistoryWrapper) || readHistoryWrapper.data().isEmpty() ?
+                WrapMapper.isFailure(readHistoryWrapper) || readHistoryWrapper.data().isEmpty() ?
                         null : readHistoryWrapper.data().getFirst());
+        if (!StringUtils.hasText(novel.getImgUrl())) {
+            Wrapper<String> defaultImgUrlWrapper = novelService.findDefaultImgUrl();
+            model.addAttribute("defaultImgUrl",
+                    WrapMapper.isOk(defaultImgUrlWrapper) ? defaultImgUrlWrapper.data() : null);
+        }
+        model.addAttribute("chapterOrder", chapterOrderStr);
         return "novel/local/local_novel_info";
     }
 
@@ -114,61 +135,64 @@ public class NovelLocalView implements InitializingBean {
         model.addAttribute("aroundChapter", WrapMapper.isOk(aroundChapterWrapper) ?
                 aroundChapterWrapper.data() : new LocalNovelAroundChapter());
         Wrapper<Void> insertWrapper = novelLocalService.insertNovelReadHistory(novelId, chapterIndex);
-        if (!WrapMapper.isOk(insertWrapper)) {
+        if (WrapMapper.isFailure(insertWrapper)) {
             return ViewUtil.goError(model, "插入阅读记录出问题啦", KeyValuePair.ofList(
                     "novelId", novelId, "chapterIndex", chapterIndexStr));
         }
+        Wrapper<List<Setting>> settingWrapper = novelService.findSetting(null,
+                Constant.Setting.NOVEL_CONTENT_FONT_SIZE);
+        model.addAttribute("fontSizeSetting",
+                WrapMapper.isFailure(settingWrapper) || settingWrapper.data().isEmpty() ?
+                        null : settingWrapper.data().getFirst());
         return "novel/local/local_novel_content";
     }
 
     @RequestMapping("novel_check")
     @ViewLog
     public String localNovelCheck(Model model, @RequestParam("novelId") String novelId,
-                                  @RequestParam("novelCheckAction") String novelCheckActionStr) {
+                                  @RequestParam(value = "novelCheckAction", required = false)
+                                  String novelCheckActionStr,
+                                  @RequestParam(value = "fillUpNovelSearchKey", required = false)
+                                  String fillUpNovelSearchKey,
+                                  @RequestParam(value = "fillUpNovelStorageKey", required = false)
+                                  String fillUpNovelStorageKey) {
 
-        if (ViewUtil.checkIllegalParam(Collections.emptyList(),
-                () -> !novelCheckActionStr.matches(Constant.Regex.NATURE_NUMBER))) {
-            return ViewUtil.goParamError(model,
-                    KeyValuePair.ofList("novelId", novelId, "novelCheckAction", novelCheckActionStr));
-        }
-        Wrapper<List<Novel>> novelWrapper = novelLocalService.findNovel(novelId, null);
-        if (!WrapMapper.isOk(novelWrapper) || novelWrapper.data().isEmpty()) {
+        Novel novel = findNovelById(novelId);
+        if (novel == null) {
             return ViewUtil.goError(model, "小说不存在", KeyValuePair.of("novelId", novelId));
         }
-        model.addAttribute("novel", novelWrapper.data().getFirst());
+        model.addAttribute("novel", novel);
+        Wrapper<String> defaultImgUrlWrapper = novelService.findDefaultImgUrl();
+        String defaultImgUrl = WrapMapper.isOk(defaultImgUrlWrapper) ? defaultImgUrlWrapper.data() : null;
+        model.addAttribute("defaultImgUrl", defaultImgUrl);
 
-        int novelCheckAction = Integer.parseInt(novelCheckActionStr);
+        int novelCheckAction = StringUtils.hasText(novelCheckActionStr)
+                && novelCheckActionStr.matches(Constant.Regex.NATURE_NUMBER) ?
+                Integer.parseInt(novelCheckActionStr) : 0;
         if (novelCheckAction == Constant.Novel.CHECK_ACTION_ASK) {
-            model.addAttribute("lossNovelChapterList", checkNovelChapter(novelId));
+            askNovelCheck(model, novel, defaultImgUrl);
         }
         if (novelCheckAction == Constant.Novel.CHECK_ACTION_DO) {
-            List<Integer> checkingChapterIndexList = checkNovelChapter(novelId).stream()
-                    .map(NovelCheckChapter::getChapterIndex).toList();
-            if (!checkingChapterIndexList.isEmpty()) {
-                checkingChapterIndexList.forEach(checkingChapterIndex -> {
-                    String itemIndex = MemoryStorage.putList(Constant.Novel.CHECKING_STORAGE_KEY, checkingChapterIndex);
-                    Thread.ofVirtual().name("novelCheck-", 0)
-                            .start(() -> {
-                                Wrapper<Void> recoverWrapper = novelLocalService.recoverNovelChapter(novelId, checkingChapterIndex);
-                                log.info("恢复 {} {} {}", novelId, checkingChapterIndex,
-                                        WrapMapper.isOk(recoverWrapper) ? "成功" : "失败, " + recoverWrapper.msg());
-                                MemoryStorage.removeListItem(Constant.Novel.CHECKING_STORAGE_KEY, itemIndex);
-                            });
-                });
+            doNovelCheck(model, novelId);
+        }
+        if (novelCheckAction == Constant.Novel.CHECK_ACTION_FILL_UP) {
+            if (ViewUtil.checkIllegalParam(List.of(fillUpNovelSearchKey, fillUpNovelStorageKey))) {
+                return ViewUtil.goParamError(model, KeyValuePair.ofList("novelId", novelId,
+                        "novelCheckAction", novelCheckActionStr, "fillUpNovelSearchKey", fillUpNovelSearchKey,
+                        "fillUpNovelStorageKey", fillUpNovelStorageKey));
             }
-            model.addAttribute("checkingNovelStart", true);
+            fillUpNovel(model, novelId, fillUpNovelSearchKey, fillUpNovelStorageKey);
         }
         List<Integer> checkingChapterList = MemoryStorage.getList(Constant.Novel.CHECKING_STORAGE_KEY,
                 new TypeReference<>() {
                 });
         model.addAttribute("checkingChapterList", checkingChapterList);
-
         return "novel/local/local_novel_check";
     }
 
     private List<NovelCheckChapter> checkNovelChapter(String novelId) {
-        Wrapper<List<NovelChapter>> catalogueWrapper = novelLocalService.findCatalogue(novelId);
-        if (!WrapMapper.isOk(catalogueWrapper)) {
+        Wrapper<List<NovelChapter>> catalogueWrapper = novelLocalService.findCatalogue(novelId, false);
+        if (WrapMapper.isFailure(catalogueWrapper)) {
             return Collections.emptyList();
         }
         List<NovelCheckChapter> lossChapterChapterList = new ArrayList<>();
@@ -192,4 +216,118 @@ public class NovelLocalView implements InitializingBean {
         }
         return lossChapterChapterList;
     }
+
+    private List<NetworkNovelInfo> checkNovel(Novel novel, String defaultImgUrl) {
+        if (StringUtils.hasText(novel.getIntro()) && StringUtils.hasText(novel.getImgUrl())
+                && !novel.getImgUrl().equals(defaultImgUrl)) {
+            return Collections.emptyList();
+        }
+        List<NovelDownloader> downloaderList = NovelFactory.getAllDownloader();
+        List<NetworkNovelInfo> fillUpNovelList = new ArrayList<>();
+        downloaderList.parallelStream().forEach(downloader -> {
+            QueryNetworkNovelInfo queryNetworkNovelInfo = downloader.queryNovel(novel.getName());
+            if (queryNetworkNovelInfo.getNovelInfoList() != null) {
+                fillUpNovelList.addAll(queryNetworkNovelInfo.getNovelInfoList());
+            }
+        });
+        return fillUpNovelList;
+    }
+
+    private NetworkNovelInfo findFillUpNovel(String fillUpNovelSearchKey, String fillUpNovelStorageKey) {
+        List<NetworkNovelInfo> fillUpNovelList = MemoryStorage.get(fillUpNovelSearchKey, new TypeReference<>() {
+        });
+        if (fillUpNovelList == null || fillUpNovelList.isEmpty()) {
+            return null;
+        }
+        for (NetworkNovelInfo novelInfo : fillUpNovelList) {
+            if (novelInfo.getStorageKey().equals(fillUpNovelStorageKey)
+                    && StringUtils.hasText(novelInfo.getIntro()) && StringUtils.hasText(novelInfo.getImgUrl())) {
+                return novelInfo;
+            }
+        }
+        return null;
+    }
+
+    private void askNovelCheck(Model model, Novel novel, String defaultImgUrl) {
+        model.addAttribute("lossNovelChapterList", checkNovelChapter(novel.getId()));
+        List<NetworkNovelInfo> fillUpNovelList = checkNovel(novel, defaultImgUrl);
+        if (!fillUpNovelList.isEmpty()) {
+            String fillUpNovelSearchKey = Constant.Novel.FILL_UP_STORAGE_KEY + "-" + UuidUtil.genId();
+            MemoryStorage.put(fillUpNovelSearchKey, fillUpNovelList);
+            model.addAttribute("fillUpNovelSearchKey", fillUpNovelSearchKey);
+            model.addAttribute("fillUpNovelList", fillUpNovelList);
+        }
+    }
+
+    private void doNovelCheck(Model model, String novelId) {
+        List<Integer> checkingChapterIndexList = checkNovelChapter(novelId).stream()
+                .map(NovelCheckChapter::getChapterIndex).toList();
+        if (!checkingChapterIndexList.isEmpty()) {
+            checkingChapterIndexList.forEach(checkingChapterIndex -> {
+                String itemIndex = MemoryStorage.putList(Constant.Novel.CHECKING_STORAGE_KEY, checkingChapterIndex);
+                Thread.ofVirtual().name("novelCheck-", 0)
+                        .start(() -> {
+                            Wrapper<Void> recoverWrapper =
+                                    novelLocalService.recoverNovelChapter(novelId, checkingChapterIndex);
+                            log.info("恢复 {} {} {}", novelId, checkingChapterIndex,
+                                    WrapMapper.isOk(recoverWrapper) ? "成功" : "失败, " + recoverWrapper.msg());
+                            MemoryStorage.removeListItem(Constant.Novel.CHECKING_STORAGE_KEY, itemIndex);
+                        });
+            });
+        }
+        model.addAttribute("checkingNovelStart", true);
+    }
+
+    private void fillUpNovel(Model model, String novelId, String fillUpNovelSearchKey, String fillUpNovelStorageKey) {
+        NetworkNovelInfo fillUpNovel = findFillUpNovel(fillUpNovelSearchKey, fillUpNovelStorageKey);
+        if (fillUpNovel != null) {
+            Wrapper<Void> updateWrapper = novelLocalService.updateNovel(new Novel()
+                    .setId(novelId)
+                    .setIntro(fillUpNovel.getIntro())
+                    .setImgUrl(fillUpNovel.getImgUrl()));
+            log.info("补充小说信息{}", WrapMapper.isOk(updateWrapper) ? "成功" : "失败");
+        } else {
+            log.info("补充小说信息失败");
+        }
+        model.addAttribute("checkingNovelStart", true);
+    }
+
+    @RequestMapping("novel_delete")
+    @ViewLog
+    public String localNovelDelete(Model model, @RequestParam("novelId") String novelId) {
+        Novel novel = findNovelById(novelId);
+        if (novel == null) {
+            return ViewUtil.goError(model, "小说不存在", KeyValuePair.of("novelId", novelId));
+        }
+        model.addAttribute("novel", novel);
+        if (!StringUtils.hasText(novel.getImgUrl())) {
+            Wrapper<String> defaultImgUrlWrapper = novelService.findDefaultImgUrl();
+            model.addAttribute("defaultImgUrl",
+                    WrapMapper.isOk(defaultImgUrlWrapper) ? defaultImgUrlWrapper.data() : null);
+        }
+        return "novel/local/local_novel_delete";
+    }
+
+    private Novel findNovelById(String novelId) {
+        Wrapper<List<Novel>> novelWrapper = novelLocalService.findNovel(novelId, null);
+        if (WrapMapper.isFailure(novelWrapper) || novelWrapper.data().isEmpty()) {
+            return null;
+        }
+        return novelWrapper.data().getFirst();
+    }
+
+    @RequestMapping("action_delete_novel")
+    @ViewLog
+    public String actionAddVideo(Model model, @RequestParam("novelId") String novelId) {
+        Novel novel = findNovelById(novelId);
+        if (novel == null) {
+            return ViewUtil.goError(model, "小说不存在", KeyValuePair.of("novelId", novelId));
+        }
+        Wrapper<Void> deleteNovelWrapper = novelLocalService.deleteNovel(novel);
+        model.addAttribute("actionMsg", "删除小说" +
+                (WrapMapper.isOk(deleteNovelWrapper) ? "成功" : "失败"));
+        model.addAttribute("backUrl", "/novel/local");
+        return "action_result";
+    }
+
 }

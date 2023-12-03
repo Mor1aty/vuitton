@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuitton</title>
+    <meta name="viewport"
+          content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/image.css}"/>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav">
+    <a class="aui-pull-left aui-btn" th:href="'/novel/local/novel_info?novelId='+${novel.id}">
+        <span class="aui-iconfont aui-icon-left"></span>返回
+    </a>
+    <div class="aui-title">Vuitton 本地小说删除</div>
+</header>
+<section class="aui-content" style="margin: 0.5rem">
+    <div class="aui-card-list">
+        <div class="aui-card-list-header">
+            <div class="aui-info">
+                <div class="aui-info-item">
+                    <img th:src="${#customUtil.stringHasText(novel.imgUrl)?novel.imgUrl:defaultImgUrl}"
+                         alt="无图片"
+                         src=""
+                         style="width: 2.5rem"
+                         onclick="showCoverImg(this)"/>
+                </div>
+                <div style="display: flex; flex-direction: column; margin-left: 1rem">
+                    <div style="font-size: 1.2rem; font-weight: 600" th:text="${novel.name}"></div>
+                    <div style="font-size: 0.8rem; font-weight: 500; margin-left: 0.2rem"
+                         th:text="'作者: '+${novel.author}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="aui-card-list-content">
+            <div>
+                <p th:text="${novel.intro}" style="text-indent: 2em"></p>
+            </div>
+        </div>
+    </div>
+    <div class="aui-card-list">
+        <div class="aui-card-list-header aui-text-primary">
+            <div class="aui-title">删除?</div>
+        </div>
+        <div class="aui-card-list-footer">
+            <div>
+                <div class="aui-list-item-title aui-text-primary"
+                     onclick="goBack()">
+                    取消
+                </div>
+            </div>
+            <div>
+                <div class="aui-list-item-title aui-text-danger"
+                     onclick="deleteNovel()">
+                    删除
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="cover" class="cover" onclick="hideCoverImg()">
+    <img id="cover-image" class="cover-image" src="" alt="无图片"/>
+</div>
+</body>
+<script th:src="@{/js/image.js}"></script>
+<script th:inline="javascript">
+    function goBack() {
+        window.location.href = "novel_info?novelId=" + [[${novel.id}]]
+    }
+
+    function deleteNovel() {
+        window.location.href = "action_delete_novel?novelId=" + [[${novel.id}]]
+    }
+</script>
+</html>

@@ -23,5 +23,7 @@ public class NovelDownloaderInfo {
 
     private String catalogueBaseUrl;
 
+    private String searchBaseUrl;
+
     private String mark;
 }

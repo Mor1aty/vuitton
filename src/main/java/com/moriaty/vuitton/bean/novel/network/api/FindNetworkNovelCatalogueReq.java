@@ -17,4 +17,6 @@ public class FindNetworkNovelCatalogueReq {
 
     private String catalogueUrl;
 
+    private boolean reverse;
+
 }

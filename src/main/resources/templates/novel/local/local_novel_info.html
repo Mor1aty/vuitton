@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Vuitton</title>
     <meta name="viewport"
-            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+          content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no"/>
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
@@ -16,13 +16,17 @@
         <span class="aui-iconfont aui-icon-left"></span>返回
     </a>
     <div class="aui-title">Vuitton 本地小说</div>
-    <a class="aui-pull-right aui-btn aui-btn-outlined">
+    <a class="aui-pull-right aui-btn aui-btn-outlined" style="margin-left: 0">
         <span class="aui-iconfont aui-icon-cert"
               onclick="goNovelCheck()"></span>
     </a>
-    <a class="aui-pull-right aui-btn aui-btn-outlined">
+    <a class="aui-pull-right aui-btn aui-btn-outlined" style="margin-left: 0">
         <span class="aui-iconfont aui-icon-paper"
               onclick="goNovelDownload()"></span>
+    </a>
+    <a class="aui-pull-right aui-btn aui-btn-outlined" style="margin-left: 0">
+        <span class="aui-iconfont aui-icon-trash aui-text-danger"
+              onclick="goNovelDelete()"></span>
     </a>
 </header>
 <section class="aui-content" style="margin: 0.5rem">
@@ -30,13 +34,11 @@
         <div class="aui-card-list-header">
             <div class="aui-info">
                 <div class="aui-info-item">
-                    <img
-                            th:src="${novel.imgUrl}"
-                            alt="无图片"
-                            src=""
-                            style="width: 2.5rem"
-                            onclick="showCoverImg(this)"
-                    />
+                    <img th:src="${#customUtil.stringHasText(novel.imgUrl)?novel.imgUrl:defaultImgUrl}"
+                         alt="无图片"
+                         src=""
+                         style="width: 2.5rem"
+                         onclick="showCoverImg(this)"/>
                 </div>
                 <div style="display: flex; flex-direction: column; margin-left: 1rem">
                     <div style="font-size: 1.2rem; font-weight: 600" th:text="${novel.name}"></div>
@@ -50,7 +52,11 @@
                 <p th:text="${novel.intro}" style="text-indent: 2em"></p>
             </div>
             <div class="aui-timeline">
-                <div class="aui-timeline-item-header">目录章节</div>
+                <div class="aui-timeline-item-header">目录章节
+                    <a onclick="reverseCatalogue()"
+                       th:text="${#customUtil.stringHasText(chapterOrder) && chapterOrder.equals('2')?'正序':'倒序'}">
+                    </a>
+                </div>
                 <div class="aui-timeline-item" th:if="${readHistory != null}">
                     <div class="aui-timeline-item-label aui-bg-danger aui-text-white">继续阅读</div>
                     <div class="aui-timeline-item-inner">
@@ -95,6 +101,27 @@
         window.location.href = "novel_check?"
             + "novelId=" + [[${novel.id}]]
             + "&novelCheckAction=0"
+    }
+
+    function goNovelDelete() {
+        window.location.href = "novel_delete?novelId=" + [[${novel.id}]]
+    }
+
+    function reverseCatalogue() {
+        let chapterOrder = [[${chapterOrder}]];
+        if (chapterOrder) {
+            if (chapterOrder.toString() === '1') {
+                chapterOrder = '2'
+            } else {
+                chapterOrder = '1'
+            }
+        } else {
+            chapterOrder = '2';
+        }
+        window.location.href = "novel_info?"
+            + "novelId=" + [[${novel.id}]]
+            + "&chapterOrder=" + chapterOrder;
+
     }
 </script>
 </html>

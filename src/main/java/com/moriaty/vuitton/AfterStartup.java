@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -57,7 +58,7 @@ public class AfterStartup implements CommandLineRunner {
         if (port == null) {
             portStr = ":8080";
         } else {
-            portStr = "80".equals(port) ? "" : ":" + port;
+            portStr = "80" .equals(port) ? "" : ":" + port;
         }
         String ipAddress = findInternalIpAddress();
         String serverUrl = "http://" + ipAddress + portStr;
@@ -67,6 +68,10 @@ public class AfterStartup implements CommandLineRunner {
     }
 
     private String findInternalIpAddress() {
+        String fileServerIp = System.getenv("FILE_SERVER_IP");
+        if (StringUtils.hasText(fileServerIp) && fileServerIp.startsWith("192.168")) {
+            return fileServerIp;
+        }
         try {
             NetworkInterface networkInterface = NetworkInterface.getByName("wlp2s0");
             for (InterfaceAddress address : networkInterface.getInterfaceAddresses()) {

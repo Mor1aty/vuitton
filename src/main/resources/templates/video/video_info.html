@@ -26,13 +26,11 @@
         <div class="aui-card-list-header">
             <div class="aui-info">
                 <div class="aui-info-item">
-                    <img
-                            th:src="${fileServerUrl}+${videoInfo.coverImg}"
+                    <img th:src="${fileServerUrl}+${videoInfo.coverImg}"
                             alt="无图片"
                             src=""
                             style="width: 2.5rem"
-                            onclick="showCoverImg(this)"
-                    />
+                            onclick="showCoverImg(this)"/>
                     <h1 th:text="${videoInfo.name}" style="margin-left: 0.5rem"></h1>
                 </div>
             </div>

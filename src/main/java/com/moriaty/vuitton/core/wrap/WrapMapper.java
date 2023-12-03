@@ -45,4 +45,8 @@ public class WrapMapper {
     public static <E> boolean isOk(Wrapper<E> wrapper) {
         return wrapper.code() == WrapConstant.CODE_SUCCESS;
     }
+
+    public static <E> boolean isFailure(Wrapper<E> wrapper) {
+        return !isOk(wrapper);
+    }
 }

@@ -64,9 +64,15 @@ public class NovelLocalService {
         return WrapMapper.ok("获取成功", novelList);
     }
 
-    public Wrapper<List<NovelChapter>> findCatalogue(String novelId) {
-        List<NovelChapter> chapterList = novelChapterMapper.selectList(new LambdaQueryWrapper<NovelChapter>()
-                .eq(NovelChapter::getNovel, novelId));
+    public Wrapper<List<NovelChapter>> findCatalogue(String novelId, boolean reverse) {
+        LambdaQueryWrapper<NovelChapter> queryWrapper = new LambdaQueryWrapper<NovelChapter>()
+                .eq(NovelChapter::getNovel, novelId);
+        if (reverse) {
+            queryWrapper.orderByDesc(NovelChapter::getIndex);
+        } else {
+            queryWrapper.orderByAsc(NovelChapter::getIndex);
+        }
+        List<NovelChapter> chapterList = novelChapterMapper.selectList(queryWrapper);
         return WrapMapper.ok("获取成功", chapterList);
     }
 
@@ -185,5 +191,23 @@ public class NovelLocalService {
             log.error("小说写入文件异常", e);
             return null;
         }
+    }
+
+    public Wrapper<Void> deleteNovel(Novel novel) {
+        novelChapterMapper.delete(new LambdaQueryWrapper<NovelChapter>()
+                .eq(NovelChapter::getNovel, novel.getId()));
+        novelMapper.delete(new LambdaQueryWrapper<Novel>()
+                .eq(Novel::getId, novel.getId()));
+        try {
+            Files.deleteIfExists(Paths.get(novel.getFilePath()));
+            return WrapMapper.ok("删除成功");
+        } catch (IOException e) {
+            return WrapMapper.failure("删除小说文件失败");
+        }
+    }
+
+    public Wrapper<Void> updateNovel(Novel novel) {
+        novelMapper.updateById(novel);
+        return WrapMapper.ok("更新成功");
     }
 }

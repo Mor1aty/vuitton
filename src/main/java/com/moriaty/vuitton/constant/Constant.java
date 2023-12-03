@@ -69,6 +69,12 @@ public class Constant {
         public static final int CHECK_ACTION_ASK = 1;
 
         public static final int CHECK_ACTION_DO = 2;
+
+        public static final int CHECK_ACTION_FILL_UP = 3;
+
+        public static final int CHAPTER_ORDER_DESC = 2;
+
+        public static final String FILL_UP_STORAGE_KEY = "novelFillUpList";
     }
 
     public static class Setting {
@@ -78,5 +84,7 @@ public class Constant {
         }
 
         public static final String NOVEL_CONTENT_FONT_SIZE = "novel_content_font_size";
+
+        public static final String DEFAULT_NOVEL_IMG_URL = "default_novel_img_url";
     }
 }

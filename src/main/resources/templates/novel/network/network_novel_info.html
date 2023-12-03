@@ -4,7 +4,7 @@
     <meta charset="UTF-8"/>
     <title>Vuitton</title>
     <meta name="viewport"
-            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+          content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no"/>
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
@@ -26,13 +26,11 @@
         <div class="aui-card-list-header">
             <div class="aui-info">
                 <div class="aui-info-item">
-                    <img
-                            th:src="${novelInfo.imgUrl}"
-                            alt="无图片"
-                            src=""
-                            style="width: 2.5rem"
-                            onclick="showCoverImg(this)"
-                    />
+                    <img th:src="${#customUtil.stringHasText(novelInfo.imgUrl)?novelInfo.imgUrl:defaultImgUrl}"
+                         alt="无图片"
+                         src=""
+                         style="width: 2.5rem"
+                         onclick="showCoverImg(this)"/>
                 </div>
                 <div style="display: flex; flex-direction: column; margin-left: 1rem">
                     <div style="font-size: 1.2rem; font-weight: 600" th:text="${novelInfo.name}"></div>
@@ -46,7 +44,11 @@
                 <p th:text="${novelInfo.intro}" style="text-indent: 2em"></p>
             </div>
             <div class="aui-timeline">
-                <div class="aui-timeline-item-header">目录章节</div>
+                <div class="aui-timeline-item-header">目录章节
+                    <a onclick="reverseCatalogue()"
+                       th:text="${#customUtil.stringHasText(chapterOrder) && chapterOrder.equals('2')?'正序':'倒序'}">
+                    </a>
+                </div>
                 <div class="aui-timeline-item" th:each="chapter : ${chapterList}">
                     <div
                             class="aui-timeline-item-label aui-bg-info aui-text-white"
@@ -85,9 +87,28 @@
             + "&downloadNovelAuthor=" + [[${novelInfo.author}]]
             + "&downloadNovelIntro=" + [[${novelInfo.intro}]]
             + "&downloadNovelImgUrl=" + [[${novelInfo.imgUrl}]]
-            + "&downloadNovelChapterUrl=" + [[${novelInfo.chapterUrl}]]
+            + "&downloadNovelCatalogueUrl=" + [[${novelInfo.catalogueUrl}]]
             + "&downloaderMark=" + [[${novelInfo.downloaderMark}]]
             + "&downloadStatus=1"
+    }
+
+    function reverseCatalogue() {
+        let chapterOrder = [[${chapterOrder}]];
+        if (chapterOrder) {
+            if (chapterOrder.toString() === '1') {
+                chapterOrder = '2'
+            } else {
+                chapterOrder = '1'
+            }
+        } else {
+            chapterOrder = '2';
+        }
+        window.location.href = "novel_info?"
+            + "queryNetworkNovelStorageKey=" + [[${queryNetworkNovelStorageKey}]]
+            + "&networkNovelStorageKey=" + [[${networkNovelStorageKey}]]
+            + "&networkNovelPageKey=" + [[${networkNovelPageKey}]]
+            + "&chapterOrder=" + chapterOrder;
+
     }
 </script>
 </html>

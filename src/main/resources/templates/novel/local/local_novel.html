@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Vuitton</title>
     <meta name="viewport"
-            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+          content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no"/>
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
@@ -20,7 +20,7 @@
               onclick="goNovelSetting()"></span>
     </a>
 </header>
-<section class="aui-content">
+<section class="aui-content" style="margin: 0.5rem">
     <div class="aui-searchbar" id="search">
         <div class="aui-searchbar-input aui-border-radius">
             <i class="aui-iconfont aui-icon-search"></i>
@@ -32,8 +32,8 @@
         </div>
         <div class="aui-searchbar-btn" id="searchBtn">取消</div>
     </div>
-    <div class="aui-card-list" style="margin: 0.5rem">
-        <div class="aui-card-list-content-padded">
+    <div class="aui-card-list">
+        <div class="aui-card-list-content">
             <ul class="aui-list aui-media-list">
                 <li class="aui-list-item"
                     th:each="novel : ${novelList}"
@@ -47,7 +47,8 @@
                             <p class="aui-ellipsis-2" th:text="${novel.intro}"></p>
                         </div>
                         <div class="aui-list-item-media" style="width: 3rem">
-                            <img th:src="${novel.imgUrl}" alt="无图片" src=""/>
+                            <img th:src="${#customUtil.stringHasText(novel.imgUrl)?novel.imgUrl:defaultImgUrl}"
+                                 alt="无图片" src=""/>
                         </div>
                     </div>
                 </li>
@@ -65,7 +66,7 @@
     }
 
     function goNovelSetting() {
-        window.location.href = "setting?back=/novel/network";
+        window.location.href = "setting?back=/novel/local";
     }
 
     function initSearch() {

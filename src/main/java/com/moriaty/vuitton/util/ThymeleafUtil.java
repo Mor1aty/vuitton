@@ -2,6 +2,7 @@ package com.moriaty.vuitton.util;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONWriter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
  * @author Moriaty
  * @since 2023/11/28 上午4:33
  */
+@Slf4j
 public class ThymeleafUtil {
 
     public String objectToJson(Object obj) {
