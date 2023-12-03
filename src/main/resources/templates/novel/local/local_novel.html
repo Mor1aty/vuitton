@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Vuitton</title>
-    <meta
-            name="viewport"
-            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
-    />
+    <meta name="viewport"
+            content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no"/>
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
@@ -17,6 +15,10 @@
         <span class="aui-iconfont aui-icon-left"></span>首页
     </a>
     <div class="aui-title">Vuitton 本地小说</div>
+    <a class="aui-pull-right aui-btn aui-btn-outlined">
+        <span class="aui-iconfont aui-icon-gear"
+              onclick="goNovelSetting()"></span>
+    </a>
 </header>
 <section class="aui-content">
     <div class="aui-searchbar" id="search">
@@ -60,6 +62,10 @@
 
     function goNovelInfo(novelId) {
         window.location.href = "local/novel_info?novelId=" + novelId
+    }
+
+    function goNovelSetting() {
+        window.location.href = "setting?back=/novel/network";
     }
 
     function initSearch() {

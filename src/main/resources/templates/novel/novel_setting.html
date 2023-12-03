@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuitton</title>
+    <meta name="viewport"
+          content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/aui/aui.css}"/>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav">
+    <a class="aui-pull-left aui-btn" th:href="${back}">
+        <span class="aui-iconfont aui-icon-left"></span>首页
+    </a>
+    <div class="aui-title">Vuitton 小说设置</div>
+</header>
+<section class="aui-content">
+    <div class="aui-card-list" style="margin: 0.5rem" th:if="${setting.contentFontSize != null}">
+        <div class="aui-card-list-header">内容字体设置</div>
+        <div class="aui-card-list-content-padded">
+            <div th:text="${setting.contentFontSize}"></div>
+        </div>
+    </div>
+</section>
+</body>
+<script th:inline="javascript">
+</script>
+</html>

@@ -70,4 +70,13 @@ public class Constant {
 
         public static final int CHECK_ACTION_DO = 2;
     }
+
+    public static class Setting {
+
+        private Setting() {
+
+        }
+
+        public static final String NOVEL_CONTENT_FONT_SIZE = "novel_content_font_size";
+    }
 }
