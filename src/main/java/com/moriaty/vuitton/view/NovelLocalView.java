@@ -116,7 +116,7 @@ public class NovelLocalView implements InitializingBean {
         Resource file = new FileSystemResource(novelFile);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDisposition(ContentDisposition.attachment()
-                .filename(URLEncoder.encode(novelName, StandardCharsets.UTF_8) + ".txt").build());
+                .filename("[V]" + URLEncoder.encode(novelName, StandardCharsets.UTF_8) + ".txt").build());
         return ResponseEntity.ok().headers(headers).body(file);
     }
 

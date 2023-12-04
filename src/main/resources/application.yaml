@@ -18,7 +18,7 @@ mybatis-plus:
     db-config:
       id-type: auto
 file-server:
-  url: http://%s:8081
+  url: http://%s:8100
   novel:
     location: /data/novel/
   video:
