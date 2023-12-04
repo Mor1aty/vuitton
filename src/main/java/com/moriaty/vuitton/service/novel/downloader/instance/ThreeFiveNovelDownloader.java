@@ -1,10 +1,12 @@
-package com.moriaty.vuitton.service.novel.downloader;
+package com.moriaty.vuitton.service.novel.downloader.instance;
 
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelInfo;
 import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
 import com.moriaty.vuitton.constant.Constant;
+import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
+import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderInfo;
 import com.moriaty.vuitton.util.UuidUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -36,7 +38,8 @@ public class ThreeFiveNovelDownloader implements NovelDownloader {
             .setWebsite("https://www.xkushu.com")
             .setContentBaseUrl("https://www.xkushu.com/")
             .setCatalogueBaseUrl("https://www.xkushu.com/")
-            .setSearchBaseUrl("https://www.xkushu.com/modules/article/search.php");
+            .setSearchBaseUrl("https://www.xkushu.com/modules/article/search.php")
+            .setDisable(true);
 
     @Override
     public NovelDownloaderInfo getInfo() {

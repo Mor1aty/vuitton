@@ -3,7 +3,7 @@ package com.moriaty.vuitton;
 import com.moriaty.vuitton.core.module.Module;
 import com.moriaty.vuitton.core.storage.MemoryStorage;
 import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
-import com.moriaty.vuitton.service.novel.NovelFactory;
+import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderFactory;
 import com.moriaty.vuitton.core.module.ModuleFactory;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +58,7 @@ public class AfterStartup implements CommandLineRunner {
         if (port == null) {
             portStr = ":8080";
         } else {
-            portStr = "80" .equals(port) ? "" : ":" + port;
+            portStr = "80".equals(port) ? "" : ":" + port;
         }
         String ipAddress = findInternalIpAddress();
         String serverUrl = "http://" + ipAddress + portStr;
@@ -107,13 +107,16 @@ public class AfterStartup implements CommandLineRunner {
             Map<String, NovelDownloader> novelDownloaderMap = HashMap.newHashMap(novelDownloaderBeanMap.size());
             StringBuilder sb = new StringBuilder();
             for (NovelDownloader novelDownloaderBean : novelDownloaderBeanMap.values()) {
+                if (Boolean.TRUE.equals(novelDownloaderBean.getInfo().getDisable())) {
+                    continue;
+                }
                 novelDownloaderMap.put(novelDownloaderBean.getInfo().getMark(), novelDownloaderBean);
                 sb.append(novelDownloaderBean.getInfo().getWebName())
                         .append("(").append(novelDownloaderBean.getInfo().getMark())
                         .append("[").append(novelDownloaderBean.getInfo().getWebsite()).append("]")
                         .append(") ");
             }
-            NovelFactory.putDownloaderMap(novelDownloaderMap);
+            NovelDownloaderFactory.putDownloaderMap(novelDownloaderMap);
             log.info("可用的小说下载器[{}]: {}", novelDownloaderMap.size(), sb);
         }
     }

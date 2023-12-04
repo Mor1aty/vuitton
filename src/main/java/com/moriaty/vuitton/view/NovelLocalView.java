@@ -17,7 +17,7 @@ import com.moriaty.vuitton.core.wrap.Wrapper;
 import com.moriaty.vuitton.dao.entity.Novel;
 import com.moriaty.vuitton.dao.entity.NovelChapter;
 import com.moriaty.vuitton.dao.entity.Setting;
-import com.moriaty.vuitton.service.novel.NovelFactory;
+import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderFactory;
 import com.moriaty.vuitton.service.novel.NovelLocalService;
 import com.moriaty.vuitton.service.novel.NovelService;
 import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
@@ -172,8 +172,8 @@ public class NovelLocalView implements InitializingBean {
         if (novelCheckAction == Constant.Novel.CHECK_ACTION_ASK) {
             askNovelCheck(model, novel, defaultImgUrl);
         }
-        if (novelCheckAction == Constant.Novel.CHECK_ACTION_DO) {
-            doNovelCheck(model, novelId);
+        if (novelCheckAction == Constant.Novel.CHECK_ACTION_RECOVER) {
+            recoverNovelCheck(model, novelId);
         }
         if (novelCheckAction == Constant.Novel.CHECK_ACTION_FILL_UP) {
             if (ViewUtil.checkIllegalParam(List.of(fillUpNovelSearchKey, fillUpNovelStorageKey))) {
@@ -182,6 +182,9 @@ public class NovelLocalView implements InitializingBean {
                         "fillUpNovelStorageKey", fillUpNovelStorageKey));
             }
             fillUpNovel(model, novelId, fillUpNovelSearchKey, fillUpNovelStorageKey);
+        }
+        if (novelCheckAction == Constant.Novel.CHECK_ACTION_RESET_SEQ) {
+            resetSeqNovelChapter(model, novel);
         }
         List<Integer> checkingChapterList = MemoryStorage.getList(Constant.Novel.CHECKING_STORAGE_KEY,
                 new TypeReference<>() {
@@ -222,7 +225,7 @@ public class NovelLocalView implements InitializingBean {
                 && !novel.getImgUrl().equals(defaultImgUrl)) {
             return Collections.emptyList();
         }
-        List<NovelDownloader> downloaderList = NovelFactory.getAllDownloader();
+        List<NovelDownloader> downloaderList = NovelDownloaderFactory.getAllDownloader();
         List<NetworkNovelInfo> fillUpNovelList = new ArrayList<>();
         downloaderList.parallelStream().forEach(downloader -> {
             QueryNetworkNovelInfo queryNetworkNovelInfo = downloader.queryNovel(novel.getName());
@@ -249,7 +252,8 @@ public class NovelLocalView implements InitializingBean {
     }
 
     private void askNovelCheck(Model model, Novel novel, String defaultImgUrl) {
-        model.addAttribute("lossNovelChapterList", checkNovelChapter(novel.getId()));
+        List<NovelCheckChapter> lossNovelChapterList = checkNovelChapter(novel.getId());
+        model.addAttribute("lossNovelChapterList", lossNovelChapterList);
         List<NetworkNovelInfo> fillUpNovelList = checkNovel(novel, defaultImgUrl);
         if (!fillUpNovelList.isEmpty()) {
             String fillUpNovelSearchKey = Constant.Novel.FILL_UP_STORAGE_KEY + "-" + UuidUtil.genId();
@@ -257,9 +261,12 @@ public class NovelLocalView implements InitializingBean {
             model.addAttribute("fillUpNovelSearchKey", fillUpNovelSearchKey);
             model.addAttribute("fillUpNovelList", fillUpNovelList);
         }
+        if (!lossNovelChapterList.isEmpty()) {
+            model.addAttribute("askResetSeq", true);
+        }
     }
 
-    private void doNovelCheck(Model model, String novelId) {
+    private void recoverNovelCheck(Model model, String novelId) {
         List<Integer> checkingChapterIndexList = checkNovelChapter(novelId).stream()
                 .map(NovelCheckChapter::getChapterIndex).toList();
         if (!checkingChapterIndexList.isEmpty()) {
@@ -290,6 +297,27 @@ public class NovelLocalView implements InitializingBean {
             log.info("补充小说信息失败");
         }
         model.addAttribute("checkingNovelStart", true);
+    }
+
+    private void resetSeqNovelChapter(Model model, Novel novel) {
+        model.addAttribute("checkingNovelStart", true);
+        Wrapper<List<NovelChapter>> catalogueWrapper = novelLocalService.findCatalogue(novel.getId(), false);
+        if (WrapMapper.isFailure(catalogueWrapper)) {
+            return;
+        }
+        List<NovelChapter> chapterList = catalogueWrapper.data();
+        for (int i = 0; i < chapterList.size(); i++) {
+            chapterList.set(i, chapterList.get(i).setIndex(i));
+        }
+        Wrapper<Void> deleteCatalogueWrapper = novelLocalService.deleteCatalogue(novel.getId());
+        if (WrapMapper.isFailure(deleteCatalogueWrapper)) {
+            log.error("删除目录失败");
+            return;
+        }
+        log.info("删除目录成功");
+        log.info("插入目录{}", WrapMapper.isOk(novelLocalService.insertCatalogue(chapterList)) ? "成功" : "失败");
+        log.info("删除阅读历史记录{}",
+                WrapMapper.isOk(novelLocalService.deleteNovelReadHistory(novel.getId())) ? "成功" : "失败");
     }
 
     @RequestMapping("novel_delete")

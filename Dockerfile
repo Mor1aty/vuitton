@@ -12,4 +12,8 @@ ENV DATASOURCE_URL $DATASOURCE_URL
 ARG FILE_SERVER_IP
 ENV FILE_SERVER_IP $FILE_SERVER_IP
 
+VOLUME /vuitton.db
+
+VOLUME /data
+
 ENTRYPOINT java -jar vuitton.jar --spring.datasource.url="$DATASOURCE_URL"

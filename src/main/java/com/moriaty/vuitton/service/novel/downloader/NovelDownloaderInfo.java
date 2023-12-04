@@ -26,4 +26,6 @@ public class NovelDownloaderInfo {
     private String searchBaseUrl;
 
     private String mark;
+
+    private Boolean disable;
 }

@@ -9,6 +9,7 @@ import com.moriaty.vuitton.dao.entity.NovelChapter;
 import com.moriaty.vuitton.dao.mapper.NovelChapterMapper;
 import com.moriaty.vuitton.dao.mapper.NovelMapper;
 import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
+import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderFactory;
 import com.moriaty.vuitton.util.UuidUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,9 +56,9 @@ public class NovelNetworkService {
         List<NovelDownloader> downloaderList = new ArrayList<>();
         if (downloaderMarkList != null) {
             downloaderMarkList.forEach(downloaderMark
-                    -> downloaderList.add(NovelFactory.getDownloader(downloaderMark)));
+                    -> downloaderList.add(NovelDownloaderFactory.getDownloader(downloaderMark)));
         } else {
-            downloaderList.addAll(NovelFactory.getAllDownloader());
+            downloaderList.addAll(NovelDownloaderFactory.getAllDownloader());
         }
         List<QueryNetworkNovelInfo> result = new ArrayList<>();
         for (NovelDownloader downloader : downloaderList) {
@@ -77,7 +78,7 @@ public class NovelNetworkService {
         if (!StringUtils.hasText(novelInfo.getName())) {
             return WrapMapper.illegalParam("小说名不能为空");
         }
-        NovelDownloader downloader = NovelFactory.getDownloader(downloaderMark);
+        NovelDownloader downloader = NovelDownloaderFactory.getDownloader(downloaderMark);
         if (downloader == null) {
             return WrapMapper.failure("小说下载器 " + downloaderMark + " 不存在");
         }
@@ -211,7 +212,7 @@ public class NovelNetworkService {
             return WrapMapper.illegalParam("目录补充不能为空");
         }
         log.info("查询小说[{}]章节, 来源: {}", catalogueUrl, downloaderMark);
-        NovelDownloader downloader = NovelFactory.getDownloader(downloaderMark);
+        NovelDownloader downloader = NovelDownloaderFactory.getDownloader(downloaderMark);
         if (downloader == null) {
             return WrapMapper.failure("小说下载器 " + downloaderMark + " 不存在");
         }
@@ -233,7 +234,7 @@ public class NovelNetworkService {
             return WrapMapper.illegalParam("章节 url 不能为空");
         }
         log.info("查询小说章节[{}]内容, 来源: {}", chapterName, downloaderMark);
-        NovelDownloader downloader = NovelFactory.getDownloader(downloaderMark);
+        NovelDownloader downloader = NovelDownloaderFactory.getDownloader(downloaderMark);
         if (downloader == null) {
             return WrapMapper.failure("小说下载器 " + downloaderMark + " 不存在");
         }

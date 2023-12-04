@@ -1,7 +1,4 @@
-package com.moriaty.vuitton.service.novel;
-
-import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
-import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderInfo;
+package com.moriaty.vuitton.service.novel.downloader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,9 +13,9 @@ import java.util.Map;
  * @author Moriaty
  * @since 2023/10/28 16:39
  */
-public class NovelFactory {
+public class NovelDownloaderFactory {
 
-    private NovelFactory() {
+    private NovelDownloaderFactory() {
 
     }
 

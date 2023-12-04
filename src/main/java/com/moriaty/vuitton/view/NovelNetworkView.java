@@ -11,7 +11,7 @@ import com.moriaty.vuitton.core.wrap.WrapMapper;
 import com.moriaty.vuitton.core.wrap.Wrapper;
 import com.moriaty.vuitton.dao.entity.Novel;
 import com.moriaty.vuitton.dao.entity.Setting;
-import com.moriaty.vuitton.service.novel.NovelFactory;
+import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderFactory;
 import com.moriaty.vuitton.service.novel.NovelLocalService;
 import com.moriaty.vuitton.service.novel.NovelNetworkService;
 import com.moriaty.vuitton.core.module.ModuleFactory;
@@ -74,7 +74,7 @@ public class NovelNetworkView implements InitializingBean {
         }
         model.addAttribute("searchText", searchText);
         model.addAttribute("downloaderMarkList", downloaderMarkList);
-        model.addAttribute("downloaderList", NovelFactory.getAllDownloaderInfo());
+        model.addAttribute("downloaderList", NovelDownloaderFactory.getAllDownloaderInfo());
         if (StringUtils.hasText(searchText) && downloaderMarkList != null && !downloaderMarkList.isEmpty()) {
             handleNetworkNovel(model, searchText, downloaderMarkList);
         }
@@ -253,16 +253,38 @@ public class NovelNetworkView implements InitializingBean {
     private NetworkNovelAroundChapter findStorageNovelAroundChapter(String queryCatalogueStorageKey, int chapterIndex) {
         List<NetworkNovelChapter> chapterList = MemoryStorage.get(queryCatalogueStorageKey, new TypeReference<>() {
         });
-        if (chapterList == null || chapterList.isEmpty() || chapterIndex > chapterList.size() - 1) {
+        if (chapterList == null || chapterList.isEmpty()) {
             return null;
         }
-        NetworkNovelAroundChapter aroundChapter = new NetworkNovelAroundChapter()
-                .setChapter(chapterList.get(chapterIndex));
-        if (chapterIndex - 1 >= 0) {
-            aroundChapter.setPreChapter(chapterList.get(chapterIndex - 1));
+        for (int i = 0; i < chapterList.size(); i++) {
+            NetworkNovelChapter novelChapter = chapterList.get(i);
+            if (novelChapter.getIndex() == chapterIndex) {
+                return handleStorageNovelAroundChapter(novelChapter, i, chapterList);
+            }
         }
-        if (chapterIndex + 1 <= chapterList.size() - 1) {
-            aroundChapter.setNextChapter(chapterList.get(chapterIndex + 1));
+        return null;
+    }
+
+    private NetworkNovelAroundChapter handleStorageNovelAroundChapter(NetworkNovelChapter novelChapter,
+                                                                      int index,
+                                                                      List<NetworkNovelChapter> chapterList) {
+        NetworkNovelAroundChapter aroundChapter = new NetworkNovelAroundChapter().setChapter(novelChapter);
+        NetworkNovelChapter upChapter = index - 1 >= 0 ? chapterList.get(index - 1) : null;
+        NetworkNovelChapter downChapter = index + 1 <= chapterList.size() - 1 ?
+                chapterList.get(index + 1) : null;
+        if (upChapter != null) {
+            if (upChapter.getIndex() < novelChapter.getIndex()) {
+                aroundChapter.setPreChapter(upChapter);
+            } else {
+                aroundChapter.setNextChapter(upChapter);
+            }
+        }
+        if (downChapter != null) {
+            if (downChapter.getIndex() > novelChapter.getIndex()) {
+                aroundChapter.setNextChapter(downChapter);
+            } else {
+                aroundChapter.setPreChapter(downChapter);
+            }
         }
         return aroundChapter;
     }

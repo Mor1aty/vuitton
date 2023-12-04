@@ -68,9 +68,11 @@ public class Constant {
 
         public static final int CHECK_ACTION_ASK = 1;
 
-        public static final int CHECK_ACTION_DO = 2;
+        public static final int CHECK_ACTION_RECOVER = 2;
 
         public static final int CHECK_ACTION_FILL_UP = 3;
+
+        public static final int CHECK_ACTION_RESET_SEQ = 4;
 
         public static final int CHAPTER_ORDER_DESC = 2;
 

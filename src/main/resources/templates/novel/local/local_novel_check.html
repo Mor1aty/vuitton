@@ -73,6 +73,25 @@
             </div>
         </div>
     </div>
+    <div class="aui-card-list" th:if="${askResetSeq != null}">
+        <div class="aui-card-list-header aui-text-primary">
+            <div class="aui-title">重定序列?</div>
+        </div>
+        <div class="aui-card-list-footer">
+            <div>
+                <div class="aui-list-item-title aui-text-primary"
+                     onclick="goNovelCheck(0)">
+                    取消
+                </div>
+            </div>
+            <div>
+                <div class="aui-list-item-title aui-text-primary"
+                     onclick="goNovelCheck(4)">
+                    重定
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="aui-card-list">
         <div class="aui-card-list-header aui-text-primary">
             <div class="aui-title">校验</div>

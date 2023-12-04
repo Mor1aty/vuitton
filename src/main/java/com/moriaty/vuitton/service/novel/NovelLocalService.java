@@ -15,6 +15,7 @@ import com.moriaty.vuitton.dao.mapper.NovelChapterMapper;
 import com.moriaty.vuitton.dao.mapper.NovelMapper;
 import com.moriaty.vuitton.dao.mapper.NovelReadHistoryMapper;
 import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
+import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderFactory;
 import com.moriaty.vuitton.util.UuidUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,6 +77,17 @@ public class NovelLocalService {
         return WrapMapper.ok("获取成功", chapterList);
     }
 
+    public Wrapper<Void> insertCatalogue(List<NovelChapter> chapterList) {
+        novelChapterMapper.insertBatch(chapterList);
+        return WrapMapper.ok("插入成功");
+    }
+
+    public Wrapper<Void> deleteCatalogue(String novelId) {
+        novelChapterMapper.delete(new LambdaQueryWrapper<NovelChapter>()
+                .eq(NovelChapter::getNovel, novelId));
+        return WrapMapper.ok("删除成功");
+    }
+
     public Wrapper<LocalNovelAroundChapter> findAroundChapter(String novelId, int chapterIndex) {
         LocalNovelAroundChapter aroundChapter = new LocalNovelAroundChapter();
         List<NovelChapter> chapterList = novelChapterMapper.selectList(new LambdaQueryWrapper<NovelChapter>()
@@ -109,7 +121,7 @@ public class NovelLocalService {
 
     public Wrapper<Void> insertNovelReadHistory(String novelId, int chapterIndex) {
         novelReadHistoryMapper.delete(new LambdaQueryWrapper<NovelReadHistory>()
-                .eq(NovelReadHistory::getId, novelId));
+                .eq(NovelReadHistory::getNovel, novelId));
         novelReadHistoryMapper.insert(new NovelReadHistory()
                 .setId(UuidUtil.genId())
                 .setReadTime(LocalDateTime.now().format(Constant.Date.FORMAT_RECORD_TIME))
@@ -117,6 +129,12 @@ public class NovelLocalService {
                 .setChapterIndex(chapterIndex)
         );
         return WrapMapper.ok("插入成功");
+    }
+
+    public Wrapper<Void> deleteNovelReadHistory(String novelId) {
+        novelReadHistoryMapper.delete(new LambdaQueryWrapper<NovelReadHistory>()
+                .eq(NovelReadHistory::getNovel, novelId));
+        return WrapMapper.ok("删除成功");
     }
 
     public Wrapper<Void> recoverNovelChapter(String novelId, int chapterIndex) {
@@ -128,7 +146,7 @@ public class NovelLocalService {
         Novel novel = novelList.getFirst();
         log.info("查询小说[{} {}]章节, 来源: {}", novel.getName(), novel.getDownloaderCatalogueUrl(),
                 novel.getDownloaderMark());
-        NovelDownloader downloader = NovelFactory.getDownloader(novel.getDownloaderMark());
+        NovelDownloader downloader = NovelDownloaderFactory.getDownloader(novel.getDownloaderMark());
         if (downloader == null) {
             return WrapMapper.failure("小说下载器 " + novel.getDownloaderMark() + " 不存在");
         }
