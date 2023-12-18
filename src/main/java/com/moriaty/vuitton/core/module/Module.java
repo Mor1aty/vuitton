@@ -20,4 +20,6 @@ public class Module {
     private String name;
 
     private String path;
+
+    private String imgUrl;
 }

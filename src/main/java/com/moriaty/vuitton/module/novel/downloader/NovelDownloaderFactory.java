@@ -1,4 +1,4 @@
-package com.moriaty.vuitton.service.novel.downloader;
+package com.moriaty.vuitton.module.novel.downloader;
 
 import java.util.ArrayList;
 import java.util.HashMap;

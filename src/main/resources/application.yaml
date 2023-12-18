@@ -20,7 +20,12 @@ mybatis-plus:
 file-server:
   url: http://%s:8100
   novel:
-    location: /data/novel/
+    location: /data/novel
+    url-prefix: /novel
+    default-novel-img: ${file-server.novel.url-prefix}/default_img.jpg
+    module-local-img: ${file-server.novel.url-prefix}/module_local_novel_img.jpg
+    module-network-img: ${file-server.novel.url-prefix}/module_network_novel_img.jpeg
   video:
-    base-path: /data/video
-    base-prefix: /video/
+    location: /data/video
+    url-prefix: /video
+    module-video-img: ${file-server.video.url-prefix}/module_video_img.webp

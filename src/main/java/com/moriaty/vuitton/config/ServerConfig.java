@@ -1,7 +1,10 @@
 package com.moriaty.vuitton.config;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Collections;
 
 
 /**
@@ -14,6 +17,14 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ServerConfig {
+
+    @Bean
+    public FilterRegistrationBean<CrossDomainFilter> crossDomainFilter() {
+        FilterRegistrationBean<CrossDomainFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new CrossDomainFilter());
+        registrationBean.setUrlPatterns(Collections.singletonList("/*"));
+        return registrationBean;
+    }
 
     @Bean
     public ThymeleafCustomDialect customThymeleafDialect() {

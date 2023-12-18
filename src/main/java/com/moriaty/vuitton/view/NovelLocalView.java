@@ -9,23 +9,19 @@ import com.moriaty.vuitton.bean.novel.network.NetworkNovelInfo;
 import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
 import com.moriaty.vuitton.constant.Constant;
 import com.moriaty.vuitton.core.log.ViewLog;
-import com.moriaty.vuitton.core.module.Module;
-import com.moriaty.vuitton.core.module.ModuleFactory;
 import com.moriaty.vuitton.core.storage.MemoryStorage;
-import com.moriaty.vuitton.core.wrap.WrapMapper;
-import com.moriaty.vuitton.core.wrap.Wrapper;
 import com.moriaty.vuitton.dao.entity.Novel;
 import com.moriaty.vuitton.dao.entity.NovelChapter;
 import com.moriaty.vuitton.dao.entity.Setting;
-import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderFactory;
-import com.moriaty.vuitton.service.novel.NovelLocalService;
-import com.moriaty.vuitton.service.novel.NovelService;
-import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
+import com.moriaty.vuitton.module.novel.NovelLocalModule;
+import com.moriaty.vuitton.module.novel.NovelModule;
+import com.moriaty.vuitton.module.novel.downloader.NovelDownloaderFactory;
+import com.moriaty.vuitton.module.novel.downloader.NovelDownloader;
 import com.moriaty.vuitton.util.UuidUtil;
 import com.moriaty.vuitton.util.ViewUtil;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
@@ -53,33 +49,24 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("novel/local")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
-public class NovelLocalView implements InitializingBean {
+public class NovelLocalView {
 
-    private final NovelLocalService novelLocalService;
+    private final NovelLocalModule novelLocalModule;
 
-    private final NovelService novelService;
+    private final NovelModule novelModule;
 
-    @Override
-    public void afterPropertiesSet() {
-        ModuleFactory.addModule(new Module()
-                .setId(1)
-                .setName("本地小说")
-                .setPath("novel/local"));
-    }
+    @Value("${file-server.novel.default-novel-img}")
+    private String defaultImgUrl;
 
     @RequestMapping
     @ViewLog
-    public String localNovel(Model model,
-                             @RequestParam(value = "searchText", required = false) String searchText) {
-        Wrapper<List<Novel>> novelWrapper = novelLocalService.findNovel(null, searchText);
-        model.addAttribute("novelList", WrapMapper.isOk(novelWrapper) ?
-                novelWrapper.data() : Collections.emptyList());
+    public String localNovel(Model model, @RequestParam(value = "searchText", required = false) String searchText) {
+        List<Novel> novelList = novelLocalModule.findNovel(null, searchText);
+        model.addAttribute("novelList", novelList);
         model.addAttribute("searchText", searchText);
-        Wrapper<String> defaultImgUrlWrapper = novelService.findDefaultImgUrl();
-        model.addAttribute("defaultImgUrl",
-                WrapMapper.isOk(defaultImgUrlWrapper) ? defaultImgUrlWrapper.data() : null);
+        model.addAttribute("defaultImgUrl", defaultImgUrl);
         return "novel/local/local_novel";
     }
 
@@ -92,19 +79,14 @@ public class NovelLocalView implements InitializingBean {
             return ViewUtil.goError(model, "小说不存在", KeyValuePair.of("novelId", novelId));
         }
         model.addAttribute("novel", novel);
-        Wrapper<List<NovelChapter>> catalogueWrapper = novelLocalService.findCatalogue(novelId,
+        List<NovelChapter> chapterList = novelLocalModule.findCatalogue(novelId,
                 StringUtils.hasText(chapterOrderStr)
                         && chapterOrderStr.equals(String.valueOf(Constant.Novel.CHAPTER_ORDER_DESC)));
-        model.addAttribute("chapterList",
-                WrapMapper.isOk(catalogueWrapper) ? catalogueWrapper.data() : Collections.emptyList());
-        Wrapper<List<NovelReadHistoryInfo>> readHistoryWrapper = novelLocalService.findNovelReadHistory(novelId);
-        model.addAttribute("readHistory",
-                WrapMapper.isFailure(readHistoryWrapper) || readHistoryWrapper.data().isEmpty() ?
-                        null : readHistoryWrapper.data().getFirst());
+        model.addAttribute("chapterList", chapterList);
+        List<NovelReadHistoryInfo> readHistory = novelLocalModule.findNovelReadHistory(novelId);
+        model.addAttribute("readHistory", readHistory.isEmpty() ? null : readHistory.getFirst());
         if (!StringUtils.hasText(novel.getImgUrl())) {
-            Wrapper<String> defaultImgUrlWrapper = novelService.findDefaultImgUrl();
-            model.addAttribute("defaultImgUrl",
-                    WrapMapper.isOk(defaultImgUrlWrapper) ? defaultImgUrlWrapper.data() : null);
+            model.addAttribute("defaultImgUrl", defaultImgUrl);
         }
         model.addAttribute("chapterOrder", chapterOrderStr);
         return "novel/local/local_novel_info";
@@ -131,19 +113,12 @@ public class NovelLocalView implements InitializingBean {
         }
         model.addAttribute("novelId", novelId);
         int chapterIndex = Integer.parseInt(chapterIndexStr);
-        Wrapper<LocalNovelAroundChapter> aroundChapterWrapper = novelLocalService.findAroundChapter(novelId, chapterIndex);
-        model.addAttribute("aroundChapter", WrapMapper.isOk(aroundChapterWrapper) ?
-                aroundChapterWrapper.data() : new LocalNovelAroundChapter());
-        Wrapper<Void> insertWrapper = novelLocalService.insertNovelReadHistory(novelId, chapterIndex);
-        if (WrapMapper.isFailure(insertWrapper)) {
-            return ViewUtil.goError(model, "插入阅读记录出问题啦", KeyValuePair.ofList(
-                    "novelId", novelId, "chapterIndex", chapterIndexStr));
-        }
-        Wrapper<List<Setting>> settingWrapper = novelService.findSetting(null,
+        LocalNovelAroundChapter aroundChapter = novelLocalModule.findAroundChapter(novelId, chapterIndex);
+        model.addAttribute("aroundChapter", aroundChapter);
+        novelLocalModule.insertNovelReadHistory(novelId, chapterIndex);
+        List<Setting> settingList = novelModule.findSetting(null,
                 Constant.Setting.NOVEL_CONTENT_FONT_SIZE);
-        model.addAttribute("fontSizeSetting",
-                WrapMapper.isFailure(settingWrapper) || settingWrapper.data().isEmpty() ?
-                        null : settingWrapper.data().getFirst());
+        model.addAttribute("fontSizeSetting", settingList.isEmpty() ? null : settingList.getFirst());
         return "novel/local/local_novel_content";
     }
 
@@ -162,8 +137,6 @@ public class NovelLocalView implements InitializingBean {
             return ViewUtil.goError(model, "小说不存在", KeyValuePair.of("novelId", novelId));
         }
         model.addAttribute("novel", novel);
-        Wrapper<String> defaultImgUrlWrapper = novelService.findDefaultImgUrl();
-        String defaultImgUrl = WrapMapper.isOk(defaultImgUrlWrapper) ? defaultImgUrlWrapper.data() : null;
         model.addAttribute("defaultImgUrl", defaultImgUrl);
 
         int novelCheckAction = StringUtils.hasText(novelCheckActionStr)
@@ -194,18 +167,15 @@ public class NovelLocalView implements InitializingBean {
     }
 
     private List<NovelCheckChapter> checkNovelChapter(String novelId) {
-        Wrapper<List<NovelChapter>> catalogueWrapper = novelLocalService.findCatalogue(novelId, false);
-        if (WrapMapper.isFailure(catalogueWrapper)) {
-            return Collections.emptyList();
-        }
+        List<NovelChapter> chapterList = novelLocalModule.findCatalogue(novelId, false);
         List<NovelCheckChapter> lossChapterChapterList = new ArrayList<>();
         int currentChapterIndex = 0;
-        for (int i = 0; i < catalogueWrapper.data().size(); i++) {
-            NovelChapter chapter = catalogueWrapper.data().get(i);
+        for (int i = 0; i < chapterList.size(); i++) {
+            NovelChapter chapter = chapterList.get(i);
 
             NovelChapter preNearChapter = null;
             if (i - 1 >= 0) {
-                preNearChapter = catalogueWrapper.data().get(i - 1);
+                preNearChapter = chapterList.get(i - 1);
             }
             int lossNum = chapter.getIndex() - currentChapterIndex;
             for (int j = 0; j < lossNum; j++) {
@@ -274,10 +244,9 @@ public class NovelLocalView implements InitializingBean {
                 String itemIndex = MemoryStorage.putList(Constant.Novel.CHECKING_STORAGE_KEY, checkingChapterIndex);
                 Thread.ofVirtual().name("novelCheck-", 0)
                         .start(() -> {
-                            Wrapper<Void> recoverWrapper =
-                                    novelLocalService.recoverNovelChapter(novelId, checkingChapterIndex);
-                            log.info("恢复 {} {} {}", novelId, checkingChapterIndex,
-                                    WrapMapper.isOk(recoverWrapper) ? "成功" : "失败, " + recoverWrapper.msg());
+                            boolean isSuccess =
+                                    novelLocalModule.recoverNovelChapter(novelId, checkingChapterIndex);
+                            log.info("恢复 {} {} {}", novelId, checkingChapterIndex, isSuccess ? "成功" : "失败");
                             MemoryStorage.removeListItem(Constant.Novel.CHECKING_STORAGE_KEY, itemIndex);
                         });
             });
@@ -288,11 +257,11 @@ public class NovelLocalView implements InitializingBean {
     private void fillUpNovel(Model model, String novelId, String fillUpNovelSearchKey, String fillUpNovelStorageKey) {
         NetworkNovelInfo fillUpNovel = findFillUpNovel(fillUpNovelSearchKey, fillUpNovelStorageKey);
         if (fillUpNovel != null) {
-            Wrapper<Void> updateWrapper = novelLocalService.updateNovel(new Novel()
+            novelLocalModule.updateNovel(new Novel()
                     .setId(novelId)
                     .setIntro(fillUpNovel.getIntro())
                     .setImgUrl(fillUpNovel.getImgUrl()));
-            log.info("补充小说信息{}", WrapMapper.isOk(updateWrapper) ? "成功" : "失败");
+            log.info("补充小说信息成功");
         } else {
             log.info("补充小说信息失败");
         }
@@ -301,23 +270,16 @@ public class NovelLocalView implements InitializingBean {
 
     private void resetSeqNovelChapter(Model model, Novel novel) {
         model.addAttribute("checkingNovelStart", true);
-        Wrapper<List<NovelChapter>> catalogueWrapper = novelLocalService.findCatalogue(novel.getId(), false);
-        if (WrapMapper.isFailure(catalogueWrapper)) {
-            return;
-        }
-        List<NovelChapter> chapterList = catalogueWrapper.data();
+        List<NovelChapter> chapterList = novelLocalModule.findCatalogue(novel.getId(), false);
         for (int i = 0; i < chapterList.size(); i++) {
             chapterList.set(i, chapterList.get(i).setIndex(i));
         }
-        Wrapper<Void> deleteCatalogueWrapper = novelLocalService.deleteCatalogue(novel.getId());
-        if (WrapMapper.isFailure(deleteCatalogueWrapper)) {
-            log.error("删除目录失败");
-            return;
-        }
+        novelLocalModule.deleteCatalogue(novel.getId());
         log.info("删除目录成功");
-        log.info("插入目录{}", WrapMapper.isOk(novelLocalService.insertCatalogue(chapterList)) ? "成功" : "失败");
-        log.info("删除阅读历史记录{}",
-                WrapMapper.isOk(novelLocalService.deleteNovelReadHistory(novel.getId())) ? "成功" : "失败");
+        novelLocalModule.insertCatalogue(chapterList);
+        log.info("插入目录成功");
+        novelLocalModule.deleteNovelReadHistory(novel.getId());
+        log.info("删除阅读历史记录成功");
     }
 
     @RequestMapping("novel_delete")
@@ -329,19 +291,17 @@ public class NovelLocalView implements InitializingBean {
         }
         model.addAttribute("novel", novel);
         if (!StringUtils.hasText(novel.getImgUrl())) {
-            Wrapper<String> defaultImgUrlWrapper = novelService.findDefaultImgUrl();
-            model.addAttribute("defaultImgUrl",
-                    WrapMapper.isOk(defaultImgUrlWrapper) ? defaultImgUrlWrapper.data() : null);
+            model.addAttribute("defaultImgUrl", defaultImgUrl);
         }
         return "novel/local/local_novel_delete";
     }
 
     private Novel findNovelById(String novelId) {
-        Wrapper<List<Novel>> novelWrapper = novelLocalService.findNovel(novelId, null);
-        if (WrapMapper.isFailure(novelWrapper) || novelWrapper.data().isEmpty()) {
+        List<Novel> novelList = novelLocalModule.findNovel(novelId, null);
+        if (novelList.isEmpty()) {
             return null;
         }
-        return novelWrapper.data().getFirst();
+        return novelList.getFirst();
     }
 
     @RequestMapping("action_delete_novel")
@@ -351,9 +311,8 @@ public class NovelLocalView implements InitializingBean {
         if (novel == null) {
             return ViewUtil.goError(model, "小说不存在", KeyValuePair.of("novelId", novelId));
         }
-        Wrapper<Void> deleteNovelWrapper = novelLocalService.deleteNovel(novel);
-        model.addAttribute("actionMsg", "删除小说" +
-                (WrapMapper.isOk(deleteNovelWrapper) ? "成功" : "失败"));
+        boolean isSuccess = novelLocalModule.deleteNovel(novel);
+        model.addAttribute("actionMsg", "删除小说" + (isSuccess ? "成功" : "失败"));
         model.addAttribute("backUrl", "/novel/local");
         return "action_result";
     }

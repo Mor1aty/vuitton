@@ -1,7 +1,8 @@
 package com.moriaty.vuitton.ctrl;
 
-import com.moriaty.vuitton.core.wrap.WrapMapper;
+import com.moriaty.vuitton.bean.common.CommonInfo;
 import com.moriaty.vuitton.core.wrap.Wrapper;
+import com.moriaty.vuitton.service.CommonService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,20 +11,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 测试 Ctrl
+ * 通用 Ctrl
  * </p>
  *
  * @author Moriaty
- * @since 2023/11/22 下午8:04
+ * @since 2023/12/8 1:20
  */
 @RestController
-@RequestMapping("api/test")
+@RequestMapping("api/common")
 @AllArgsConstructor
 @Slf4j
-public class TestCtrl {
+public class CommonCtrl {
 
-    @GetMapping("hello")
-    public Wrapper<String> hello() {
-        return WrapMapper.ok("hello", "world");
+    private final CommonService commonService;
+
+    @GetMapping("info")
+    public Wrapper<CommonInfo> info() {
+        return commonService.info();
     }
 }

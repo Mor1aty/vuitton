@@ -2,8 +2,8 @@ package com.moriaty.vuitton;
 
 import com.moriaty.vuitton.core.module.Module;
 import com.moriaty.vuitton.core.storage.MemoryStorage;
-import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
-import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderFactory;
+import com.moriaty.vuitton.module.novel.downloader.NovelDownloader;
+import com.moriaty.vuitton.module.novel.downloader.NovelDownloaderFactory;
 import com.moriaty.vuitton.core.module.ModuleFactory;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

@@ -6,24 +6,18 @@ import com.moriaty.vuitton.bean.video.VideoAroundEpisode;
 import com.moriaty.vuitton.bean.video.VideoViewHistoryInfo;
 import com.moriaty.vuitton.constant.Constant;
 import com.moriaty.vuitton.core.log.ViewLog;
-import com.moriaty.vuitton.core.module.Module;
-import com.moriaty.vuitton.core.wrap.WrapMapper;
-import com.moriaty.vuitton.core.wrap.Wrapper;
 import com.moriaty.vuitton.dao.entity.Video;
 import com.moriaty.vuitton.dao.entity.VideoEpisode;
-import com.moriaty.vuitton.service.video.VideoService;
-import com.moriaty.vuitton.core.module.ModuleFactory;
+import com.moriaty.vuitton.module.video.VideoModule;
 import com.moriaty.vuitton.util.ViewUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Collections;
 import java.util.List;
 
 
@@ -39,31 +33,21 @@ import java.util.List;
 @RequestMapping("video")
 @AllArgsConstructor
 @Slf4j
-public class VideoView implements InitializingBean {
+public class VideoView {
 
-    private final VideoService videoService;
-
-    @Override
-    public void afterPropertiesSet() {
-        ModuleFactory.addModule(new Module()
-                .setId(0)
-                .setName("视频")
-                .setPath("video"));
-    }
+    private final VideoModule videoModule;
 
     @RequestMapping
     @ViewLog
     public String video(Model model, @RequestParam(value = "searchText", required = false) String searchText) {
-        Wrapper<List<Video>> videoWrapper = videoService.findVideo(null, searchText);
-        model.addAttribute("videoList",
-                WrapMapper.isOk(videoWrapper) ? videoWrapper.data() : Collections.emptyList());
+        List<Video> videoList = videoModule.findVideo(null, searchText);
+        model.addAttribute("videoList", videoList);
         model.addAttribute("fileServerUrl", ServerInfo.BASE_INFO.getFileServerUrl());
         model.addAttribute("searchText", searchText);
         if (!StringUtils.hasText(searchText)) {
-            Wrapper<List<VideoViewHistoryInfo>> viewHistoryWrapper = videoService.findVideViewHistory(null);
+            List<VideoViewHistoryInfo> viewHistory = videoModule.findVideViewHistory(null);
             model.addAttribute("viewHistory",
-                    WrapMapper.isFailure(viewHistoryWrapper) || viewHistoryWrapper.data().isEmpty() ?
-                            null : viewHistoryWrapper.data().getFirst());
+                    viewHistory.isEmpty() ? null : viewHistory.getFirst());
         }
         return "video/video";
     }
@@ -75,25 +59,23 @@ public class VideoView implements InitializingBean {
         if (ViewUtil.checkIllegalParam(videoId)) {
             return ViewUtil.goParamError(model, KeyValuePair.of("videoId", videoId));
         }
-        Wrapper<List<Video>> videoWrapper = videoService.findVideo(videoId, null);
-        if (WrapMapper.isFailure(videoWrapper) || videoWrapper.data().size() != 1) {
+        List<Video> videoList = videoModule.findVideo(videoId, null);
+        if (videoList.size() != 1) {
             return ViewUtil.goError(model, "视频信息出问题啦", KeyValuePair.of(
-                    "videoWrapper", String.valueOf(videoWrapper)));
+                    "videoList", String.valueOf(videoList)));
         }
-        Wrapper<List<VideoEpisode>> episodeMapper = videoService.findVideoEpisode(videoId);
-        if (WrapMapper.isFailure(episodeMapper)) {
+        List<VideoEpisode> episodeList = videoModule.findVideoEpisode(videoId);
+        if (episodeList.isEmpty()) {
             return ViewUtil.goError(model, "视频剧集出问题啦", KeyValuePair.ofList(
-                    "videoWrapper", String.valueOf(videoWrapper),
-                    "episodeMapper", String.valueOf(episodeMapper)));
+                    "videoList", String.valueOf(videoList),
+                    "episodeList", String.valueOf(episodeList)));
         }
-        model.addAttribute("videoInfo", videoWrapper.data().getFirst());
-        model.addAttribute("episodeList", episodeMapper.data());
+        model.addAttribute("videoInfo", videoList.getFirst());
+        model.addAttribute("episodeList", episodeList);
         model.addAttribute("fileServerUrl", ServerInfo.BASE_INFO.getFileServerUrl());
 
-        Wrapper<List<VideoViewHistoryInfo>> viewHistoryWrapper = videoService.findVideViewHistory(videoId);
-        model.addAttribute("viewHistory",
-                WrapMapper.isFailure(viewHistoryWrapper) || viewHistoryWrapper.data().isEmpty() ?
-                        null : viewHistoryWrapper.data().getFirst());
+        List<VideoViewHistoryInfo> viewHistoryList = videoModule.findVideViewHistory(videoId);
+        model.addAttribute("viewHistory", viewHistoryList.isEmpty() ? null : viewHistoryList.getFirst());
         model.addAttribute("searchText", searchText);
         return "video/video_info";
     }
@@ -108,18 +90,13 @@ public class VideoView implements InitializingBean {
                     "videoId", videoId, "episodeIndex", episodeIndexStr));
         }
         int episodeIndex = Integer.parseInt(episodeIndexStr);
-        Wrapper<VideoAroundEpisode> aroundEpisodeWrapper = videoService.findVideoAroundEpisode(videoId, episodeIndex);
-        if (WrapMapper.isFailure(aroundEpisodeWrapper)) {
+        VideoAroundEpisode aroundEpisode = videoModule.findVideoAroundEpisode(videoId, episodeIndex);
+        if (aroundEpisode == null) {
             return ViewUtil.goError(model, "视频播放出问题啦", KeyValuePair.ofList(
-                    "videoId", videoId, "episodeIndex", episodeIndexStr,
-                    "aroundEpisodeWrapper", String.valueOf(aroundEpisodeWrapper)));
-        }
-        Wrapper<Void> insertWrapper = videoService.insertVideoViewHistory(videoId, episodeIndex);
-        if (WrapMapper.isFailure(insertWrapper)) {
-            return ViewUtil.goError(model, "插入观看记录出问题啦", KeyValuePair.ofList(
                     "videoId", videoId, "episodeIndex", episodeIndexStr));
         }
-        model.addAttribute("aroundEpisode", aroundEpisodeWrapper.data());
+        videoModule.insertVideoViewHistory(videoId, episodeIndex);
+        model.addAttribute("aroundEpisode", aroundEpisode);
         model.addAttribute("fileServerUrl", ServerInfo.BASE_INFO.getFileServerUrl());
         return "video/video_play";
     }
@@ -129,12 +106,8 @@ public class VideoView implements InitializingBean {
     public String videoViewHistory(Model model,
                                    @RequestParam(value = "videoId", required = false) String videoId,
                                    @RequestParam(value = "searchText", required = false) String searchText) {
-        Wrapper<List<VideoViewHistoryInfo>> historyWrapper = videoService.findVideViewHistory(videoId);
-        if (WrapMapper.isFailure(historyWrapper)) {
-            return ViewUtil.goError(model, "观看记录出问题啦",
-                    KeyValuePair.of("historyWrapper", String.valueOf(historyWrapper)));
-        }
-        model.addAttribute("viewHistoryList", historyWrapper.data());
+        List<VideoViewHistoryInfo> viewHistoryList = videoModule.findVideViewHistory(videoId);
+        model.addAttribute("viewHistoryList", viewHistoryList);
         model.addAttribute("fileServerUrl", ServerInfo.BASE_INFO.getFileServerUrl());
         model.addAttribute("searchText", searchText);
         return "video/video_view_history";
@@ -154,8 +127,8 @@ public class VideoView implements InitializingBean {
         if (ViewUtil.checkIllegalParam(name)) {
             return ViewUtil.goParamError(model, KeyValuePair.of("name", name));
         }
-        Wrapper<Void> enterVideoWrapper = videoService.enterVideo(name, coverImg, description);
-        model.addAttribute("actionMsg", WrapMapper.isOk(enterVideoWrapper) ? "新增视频成功" : "新增视频失败");
+        boolean isEnterVideo = videoModule.enterVideo(name, coverImg, description);
+        model.addAttribute("actionMsg", isEnterVideo ? "新增视频成功" : "新增视频失败");
         model.addAttribute("backUrl", "/video");
         return "action_result";
     }

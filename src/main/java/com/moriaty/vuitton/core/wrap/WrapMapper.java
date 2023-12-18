@@ -26,12 +26,24 @@ public class WrapMapper {
         return new Wrapper<>(WrapConstant.CODE_SUCCESS, WrapConstant.MSG_SUCCESS, data);
     }
 
+    public static Wrapper<String> okStringData(String data) {
+        return new Wrapper<>(WrapConstant.CODE_SUCCESS, WrapConstant.MSG_SUCCESS, data);
+    }
+
     public static <E> Wrapper<E> ok(String msg, E data) {
         return new Wrapper<>(WrapConstant.CODE_SUCCESS, msg, data);
     }
 
     public static <E> Wrapper<E> illegalParam(String msg) {
         return new Wrapper<>(WrapConstant.CODE_ILLEGAL_PARAM, msg, null);
+    }
+
+    public static <E> Wrapper<E> illegalMethod() {
+        return new Wrapper<>(WrapConstant.CODE_ILLEGAL_METHOD, WrapConstant.MSG_ILLEGAL_METHOD, null);
+    }
+
+    public static <E> Wrapper<E> error() {
+        return new Wrapper<>(WrapConstant.CODE_ERROR, WrapConstant.MSG_ERROR, null);
     }
 
     public static <E> Wrapper<E> failure() {

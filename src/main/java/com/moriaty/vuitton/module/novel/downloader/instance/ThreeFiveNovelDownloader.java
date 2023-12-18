@@ -1,12 +1,12 @@
-package com.moriaty.vuitton.service.novel.downloader.instance;
+package com.moriaty.vuitton.module.novel.downloader.instance;
 
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelInfo;
 import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
 import com.moriaty.vuitton.constant.Constant;
-import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
-import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderInfo;
+import com.moriaty.vuitton.module.novel.downloader.NovelDownloader;
+import com.moriaty.vuitton.module.novel.downloader.NovelDownloaderInfo;
 import com.moriaty.vuitton.util.UuidUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -91,7 +91,7 @@ public class ThreeFiveNovelDownloader implements NovelDownloader {
             return null;
         }
 
-        Element td = tdList.get(0);
+        Element td = tdList.getFirst();
         Element a = td.getElementsByTag("a").getFirst();
         novelInfo.setName(a.text());
         novelInfo.setCatalogueUrl(a.attr("href"));

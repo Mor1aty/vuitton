@@ -1,4 +1,4 @@
-package com.moriaty.vuitton.service.novel.downloader.instance;
+package com.moriaty.vuitton.module.novel.downloader.instance;
 
 
 import com.gargoylesoftware.htmlunit.html.DomNodeList;
@@ -9,8 +9,8 @@ import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelInfo;
 import com.moriaty.vuitton.bean.novel.network.QueryNetworkNovelInfo;
 import com.moriaty.vuitton.constant.Constant;
-import com.moriaty.vuitton.service.novel.downloader.NovelDownloader;
-import com.moriaty.vuitton.service.novel.downloader.NovelDownloaderInfo;
+import com.moriaty.vuitton.module.novel.downloader.NovelDownloader;
+import com.moriaty.vuitton.module.novel.downloader.NovelDownloaderInfo;
 import com.moriaty.vuitton.util.HtmlUnitUtil;
 import com.moriaty.vuitton.util.UuidUtil;
 import lombok.extern.slf4j.Slf4j;

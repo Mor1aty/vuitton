@@ -25,4 +25,6 @@ public class DownloadNetworkNovelReq {
 
     private String novelChapterUrl;
 
+    private String supplyFile;
+
 }

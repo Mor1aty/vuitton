@@ -27,7 +27,7 @@ public class WrapConstant {
     /**
      * 失败 code
      */
-    public static final int CODE_FAILURE = 500;
+    public static final int CODE_FAILURE = 201;
 
     /**
      * 失败 msg
@@ -38,5 +38,25 @@ public class WrapConstant {
      * 参数异常 code
      */
     public static final int CODE_ILLEGAL_PARAM = 400;
+
+    /**
+     * 不支持的方法 code
+     */
+    public static final int CODE_ILLEGAL_METHOD = 405;
+
+    /**
+     * 不支持的方法 msg
+     */
+    public static final String MSG_ILLEGAL_METHOD = "不支持的方法";
+
+    /**
+     * 请求异常 code
+     */
+    public static final int CODE_ERROR = 500;
+
+    /**
+     * 请求异常 msg
+     */
+    public static final String MSG_ERROR = "请求异常";
 
 }

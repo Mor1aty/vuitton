@@ -1,4 +1,4 @@
-package com.moriaty.vuitton.service.novel.downloader;
+package com.moriaty.vuitton.module.novel.downloader;
 
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelChapter;
 import com.moriaty.vuitton.bean.novel.network.NetworkNovelContent;
